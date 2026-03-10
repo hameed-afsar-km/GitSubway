@@ -74,13 +74,12 @@ export function Subway() {
   }, [stations, searchQuery, selectedYear]);
 
   useEffect(() => {
-    if (filteredStations.length > 0) {
+    // If the currently selected station is filtered out, deselect it
+    if (activeStationId !== null) {
       const stillExists = filteredStations.find(s => s.repo.id === activeStationId);
       if (!stillExists) {
-        setActiveStationId(filteredStations[0].repo.id);
+        setActiveStationId(null);
       }
-    } else {
-      setActiveStationId(null);
     }
   }, [filteredStations, activeStationId]);
 

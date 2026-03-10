@@ -182,16 +182,6 @@ function DayLighting() {
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 export function MetroScene({ stations, activeStation, onStationClick }: MetroSceneProps) {
-  // Orbit target: track centre when active station selected, else origin
-  const orbitTarget = useMemo(() => {
-    if (activeStation) {
-      // Target the track point so camera centres on the rail
-      const tp = activeStation.trackPosition;
-      return new THREE.Vector3(tp[0], 0, tp[2]);
-    }
-    return new THREE.Vector3(0, 0, 0);
-  }, [activeStation?.repo.id]);
-
   return (
     <div
       className="w-full h-full"
@@ -231,7 +221,6 @@ export function MetroScene({ stations, activeStation, onStationClick }: MetroSce
         <Train activeStation={activeStation} stations={stations} />
 
         <OrbitControls
-          target={orbitTarget}
           enableDamping
           dampingFactor={0.08}
           maxDistance={130}
