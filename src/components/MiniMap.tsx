@@ -11,11 +11,13 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
   if (stations.length === 0) return null;
 
   let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+  // Calculate bounds based on the track (the widest spanned element)
   stations.forEach(s => {
-    if (s.position[0] < minX) minX = s.position[0];
-    if (s.position[0] > maxX) maxX = s.position[0];
-    if (s.position[2] < minZ) minZ = s.position[2];
-    if (s.position[2] > maxZ) maxZ = s.position[2];
+    const p = s.trackPosition || s.position; // fallback for older data just in case
+    if (p[0] < minX) minX = p[0];
+    if (p[0] > maxX) maxX = p[0];
+    if (p[2] < minZ) minZ = p[2];
+    if (p[2] > maxZ) maxZ = p[2];
   });
 
   const padding = 12;
@@ -78,8 +80,9 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
           {/* Metro track line */}
           <polyline
             points={stations.map(s => {
-              const x = (s.position[0] - minX + padding) * scale;
-              const y = (s.position[2] - minZ + padding) * scale;
+              const tp = s.trackPosition || s.position;
+              const x = (tp[0] - minX + padding) * scale;
+              const y = (tp[2] - minZ + padding) * scale;
               return `${x},${y}`;
             }).join(' ')}
             fill="none"
@@ -90,8 +93,9 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
           {/* Second track offset */}
           <polyline
             points={stations.map(s => {
-              const x = (s.position[0] - minX + padding) * scale + 2;
-              const y = (s.position[2] - minZ + padding) * scale + 2;
+              const tp = s.trackPosition || s.position;
+              const x = (tp[0] - minX + padding) * scale + 2;
+              const y = (tp[2] - minZ + padding) * scale + 2;
               return `${x},${y}`;
             }).join(' ')}
             fill="none"

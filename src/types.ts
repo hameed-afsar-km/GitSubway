@@ -26,7 +26,10 @@ export interface UserProfile {
 
 export interface MetroStationData {
   repo: Repository;
+  /** Platform position — offset to the side of the track */
   position: [number, number, number];
+  /** On-rail position — the train follows these */
+  trackPosition: [number, number, number];
   color: string;
   size: number;
   glow: number;

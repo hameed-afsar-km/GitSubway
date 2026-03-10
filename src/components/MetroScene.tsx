@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Line, Sky, Cloud, Environment } from '@react-three/drei';
+import { OrbitControls, Line, Sky, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 import { MetroStationData } from '../types';
 import { Station } from './Station';
@@ -12,182 +12,212 @@ interface MetroSceneProps {
   onStationClick: (station: MetroStationData) => void;
 }
 
-// ─── Daylight City Buildings ────────────────────────────────────────────────
-function CityBuildings() {
-  const buildings = useMemo(() => {
-    // Warm concrete / glass building palettes for daytime
-    const wallColors = ['#c8bfb0', '#b0a898', '#d4ccc2', '#a8a090', '#bfb8ae', '#ccc4b8'];
-    const glassColors = ['#7ab8d4', '#6aaccc', '#5da0c4', '#88c4dc', '#70b0c8'];
-    const bldgs: {
-      x: number; z: number; height: number; width: number; depth: number;
-      wallColor: string; glassColor: string; hasGlass: boolean;
-    }[] = [];
+// ─── Simple seeded pseudo-random (no Math.random() in render) ───────────────
+function seeded(n: number): number {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
 
-    for (let side = 0; side < 2; side++) {
-      const zPos = side === 0 ? -45 : 45;
-      for (let i = 0; i < 18; i++) {
-        const x = -70 + i * 8 + (Math.random() * 3 - 1.5);
-        const height = 18 + Math.random() * 40;
-        const width = 5 + Math.random() * 5;
-        const depth = 4 + Math.random() * 5;
-        bldgs.push({
-          x, z: zPos, height, width, depth,
-          wallColor: wallColors[Math.floor(Math.random() * wallColors.length)],
-          glassColor: glassColors[Math.floor(Math.random() * glassColors.length)],
-          hasGlass: Math.random() > 0.4,
-        });
-      }
-    }
-    return bldgs;
-  }, []);
-
+// ─── Lightweight tree (trunk + one foliage sphere) ──────────────────────────
+function Tree({ pos, h, col }: { pos: [number, number, number]; h: number; col: string }) {
+  const tH = h * 0.38;
   return (
-    <group>
-      {buildings.map((b, i) => (
-        <group key={i} position={[b.x, b.height / 2 - 2, b.z]}>
-          {/* Main concrete body */}
-          <mesh>
-            <boxGeometry args={[b.width, b.height, b.depth]} />
-            <meshStandardMaterial color={b.wallColor} roughness={0.75} metalness={0.05} />
-          </mesh>
-
-          {/* Glass curtain wall overlay (modern buildings) */}
-          {b.hasGlass && (
-            <mesh position={[0, 0, b.depth / 2 + 0.05]}>
-              <boxGeometry args={[b.width * 0.85, b.height * 0.9, 0.08]} />
-              <meshStandardMaterial
-                color={b.glassColor}
-                roughness={0.05}
-                metalness={0.9}
-                transparent
-                opacity={0.55}
-              />
-            </mesh>
-          )}
-
-          {/* Rooftop parapet */}
-          <mesh position={[0, b.height / 2 + 0.35, 0]}>
-            <boxGeometry args={[b.width + 0.5, 0.7, b.depth + 0.5]} />
-            <meshStandardMaterial color={b.wallColor} roughness={0.8} />
-          </mesh>
-
-          {/* Rooftop HVAC / water tower */}
-          {Math.random() > 0.45 && (
-            <mesh position={[b.width * 0.25, b.height / 2 + 1.5, 0]}>
-              <boxGeometry args={[b.width * 0.3, 2.2, b.depth * 0.3]} />
-              <meshStandardMaterial color="#b0a898" roughness={0.9} />
-            </mesh>
-          )}
-
-          {/* Antenna */}
-          {Math.random() > 0.6 && (
-            <mesh position={[0, b.height / 2 + 3, 0]}>
-              <cylinderGeometry args={[0.06, 0.06, 4, 6]} />
-              <meshStandardMaterial color="#888" metalness={0.8} roughness={0.2} />
-            </mesh>
-          )}
-        </group>
-      ))}
-
-      {/* ── Ground: sunny concrete plaza ── */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
-        <planeGeometry args={[400, 400]} />
-        <meshStandardMaterial color="#c8c0b0" roughness={0.95} />
+    <group position={pos}>
+      <mesh position={[0, tH / 2, 0]}>
+        <cylinderGeometry args={[0.13, 0.2, tH, 6]} />
+        <meshStandardMaterial color="#7a5534" roughness={0.95} />
       </mesh>
-
-      {/* Concrete road/platform strips */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.98, 0]}>
-        <planeGeometry args={[400, 18]} />
-        <meshStandardMaterial color="#b8b0a4" roughness={0.92} />
+      <mesh position={[0, tH + h * 0.35, 0]}>
+        <sphereGeometry args={[h * 0.26, 8, 6]} />
+        <meshStandardMaterial color={col} roughness={0.9} />
       </mesh>
-
-      {/* Ground grid (subtle pavement lines) */}
-      <gridHelper
-        args={[400, 80, '#a8a098', '#a8a098']}
-        position={[0, -1.97, 0]}
-      />
     </group>
   );
 }
 
-// ─── Metro Track (bright steel rails) ───────────────────────────────────────
+// ─── Simple building (far background only) ──────────────────────────────────
+function Building({ pos, w, h, d, col }: {
+  pos: [number, number, number]; w: number; h: number; d: number; col: string;
+}) {
+  return (
+    <group position={[pos[0], h / 2 + pos[1], pos[2]]}>
+      <mesh>
+        <boxGeometry args={[w, h, d]} />
+        <meshStandardMaterial color={col} roughness={0.8} metalness={0.05} />
+      </mesh>
+    </group>
+  );
+}
+
+// ─── Park + far-background objects (one combined component) ─────────────────
+function ParkAndCity({ stations }: { stations: MetroStationData[] }) {
+  // trackPts used for safe-zone checks
+  const trackPts = useMemo(
+    () => stations.map(s => s.trackPosition),
+    [stations]
+  );
+
+  // Returns true if (x, z) is > minDist from every track point
+  const isSafe = (x: number, z: number, minDist = 9): boolean => {
+    for (const [tx, , tz] of trackPts) {
+      if ((x - tx) * (x - tx) + (z - tz) * (z - tz) < minDist * minDist) return false;
+    }
+    return true;
+  };
+
+  // Generate up to 30 trees scattered across a wide band, safe from track
+  const trees = useMemo(() => {
+    const result: { pos: [number, number, number]; h: number; col: string }[] = [];
+    const foliageColors = ['#3a8c3f', '#2d7a30', '#4aaa50', '#2e6e30', '#5ab045'];
+    let seed = 0;
+    // Spread ±80 in X, ±15 to ±30 in Z (wide park borders)
+    for (let attempt = 0; result.length < 30 && attempt < 300; attempt++) {
+      const x = (seeded(seed++) - 0.5) * 160;
+      const zAbs = 12 + seeded(seed++) * 20;           // only place at |z| ≥ 12
+      const z = seeded(seed++) > 0.5 ? zAbs : -zAbs;
+      if (isSafe(x, z, 9)) {
+        result.push({
+          pos: [x, 0, z],
+          h: 4 + seeded(seed++) * 4,
+          col: foliageColors[Math.floor(seeded(seed++) * foliageColors.length)],
+        });
+      }
+    }
+    return result;
+  }, [trackPts]);
+
+  // 16 far-background buildings — pushed to |z| ≥ 50
+  const buildings = useMemo(() => {
+    const wallCols = ['#c8c0b4', '#b8b0a6', '#d0c8bc', '#c4bcb0'];
+    return Array.from({ length: 16 }, (_, i) => ({
+      pos: [
+        -70 + i * 9.5 + seeded(i * 3) * 4,
+        0,
+        seeded(i * 7) > 0.5 ? -(52 + seeded(i * 11) * 12) : (52 + seeded(i * 11) * 12),
+      ] as [number, number, number],
+      w: 5 + seeded(i * 13) * 5,
+      h: 18 + seeded(i * 17) * 35,
+      d: 4 + seeded(i * 19) * 4,
+      col: wallCols[i % wallCols.length],
+    }));
+  }, []);
+
+  return (
+    <group>
+      {/* Wide grass ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
+        <planeGeometry args={[600, 300]} />
+        <meshStandardMaterial color="#5aaa44" roughness={0.95} />
+      </mesh>
+
+      {/* Gravel ballast bed directly under track */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0, 0]}>
+        <planeGeometry args={[600, 3]} />
+        <meshStandardMaterial color="#b0a898" roughness={0.98} />
+      </mesh>
+
+      {/* Trees */}
+      {trees.map((t, i) => (
+        <Tree key={i} pos={t.pos} h={t.h} col={t.col} />
+      ))}
+
+      {/* Far background buildings */}
+      {buildings.map((b, i) => (
+        <Building key={i} pos={b.pos} w={b.w} h={b.h} d={b.d} col={b.col} />
+      ))}
+    </group>
+  );
+}
+
+// ─── Metal rails along track positions ──────────────────────────────────────
 function MetroTrack({ stations }: { stations: MetroStationData[] }) {
   if (stations.length < 2) return null;
 
-  const pts = stations.map(s => new THREE.Vector3(...s.position));
-  const pts2 = stations.map(s => new THREE.Vector3(s.position[0] + 0.45, s.position[1], s.position[2] + 0.45));
+  // Draw track through trackPosition points (not platform positions)
+  const pts = stations.map(s => new THREE.Vector3(s.trackPosition[0], 0.06, s.trackPosition[2]));
+  const pts2 = stations.map(s => new THREE.Vector3(s.trackPosition[0] + 0.5, 0.06, s.trackPosition[2] + 0.5));
 
   return (
     <>
-      <Line points={pts} color="#888888" lineWidth={3} dashed={false} />
-      <Line points={pts2} color="#888888" lineWidth={3} dashed={false} />
-      {/* Shadow rail tie line */}
-      <Line
-        points={stations.map(s => new THREE.Vector3(s.position[0] + 0.22, s.position[1] - 0.18, s.position[2] + 0.22))}
-        color="#666666"
-        lineWidth={0.8}
-        dashed={false}
-      />
+      <Line points={pts} color="#888" lineWidth={2.5} />
+      <Line points={pts2} color="#888" lineWidth={2.5} />
     </>
   );
 }
 
-// ─── Daylight Atmosphere ─────────────────────────────────────────────────────
-function DaylightAtmosphere() {
+// ─── Connector line from platform to track (thin dashed for each station) ────
+function PlatformConnectors({ stations }: { stations: MetroStationData[] }) {
   return (
     <>
-      {/* Bright midday sun */}
-      <ambientLight intensity={1.4} color="#fff8f0" />
-      <directionalLight
-        position={[40, 60, 20]}
-        intensity={3.5}
-        color="#fff5e0"
-        castShadow={false}
-      />
-      {/* Soft fill from opposite side (sky bounce) */}
-      <directionalLight position={[-20, 30, -30]} intensity={1.0} color="#c8dcff" />
-      {/* Ground bounce */}
-      <hemisphereLight args={['#e8f4ff', '#c4b89a', 0.8]} />
+      {stations.map(s => {
+        const tp = new THREE.Vector3(s.trackPosition[0], 0.08, s.trackPosition[2]);
+        const pp = new THREE.Vector3(s.position[0], 0.08, s.position[2]);
+        return (
+          <Line
+            key={s.repo.id}
+            points={[tp, pp]}
+            color={s.color}
+            lineWidth={1.2}
+            dashed
+            dashSize={0.6}
+            gapSize={0.3}
+          />
+        );
+      })}
     </>
   );
 }
 
-// ─── Main Scene ──────────────────────────────────────────────────────────────
+// ─── Lighting ─────────────────────────────────────────────────────────────────
+function DayLighting() {
+  return (
+    <>
+      <ambientLight intensity={1.6} color="#fff8f0" />
+      <directionalLight position={[50, 80, 30]} intensity={2.8} color="#fff5e0" />
+      <directionalLight position={[-30, 40, -40]} intensity={0.8} color="#c8e0ff" />
+      <hemisphereLight args={['#c8e8ff', '#7cc870', 0.65]} />
+    </>
+  );
+}
+
+// ─── Main export ─────────────────────────────────────────────────────────────
 export function MetroScene({ stations, activeStation, onStationClick }: MetroSceneProps) {
+  // Orbit target: track centre when active station selected, else origin
   const orbitTarget = useMemo(() => {
-    if (activeStation) return new THREE.Vector3(...activeStation.position);
+    if (activeStation) {
+      // Target the track point so camera centres on the rail
+      const tp = activeStation.trackPosition;
+      return new THREE.Vector3(tp[0], 0, tp[2]);
+    }
     return new THREE.Vector3(0, 0, 0);
   }, [activeStation?.repo.id]);
 
   return (
     <div
       className="w-full h-full"
-      style={{ background: 'linear-gradient(180deg, #87ceeb 0%, #b0dff0 40%, #d4eef8 80%, #c8c0b0 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #87ceeb 0%, #b8dcf0 40%, #cce8b8 80%, #88c068 100%)' }}
     >
       <Canvas
-        camera={{ position: [0, 22, 35], fov: 55, near: 0.1, far: 600 }}
-        gl={{ antialias: true, alpha: false }}
-        shadows={false}
+        camera={{ position: [0, 18, 30], fov: 52, near: 0.1, far: 600 }}
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        dpr={Math.min(window.devicePixelRatio, 1.5)}
       >
-        {/* Daylight sky */}
         <Sky
-          sunPosition={[100, 60, -50]}
-          inclination={0.49}
-          azimuth={0.25}
+          sunPosition={[80, 50, -40]}
+          inclination={0.48}
+          azimuth={0.22}
+          rayleigh={1.0}
+          turbidity={3}
           mieCoefficient={0.003}
           mieDirectionalG={0.8}
-          rayleigh={0.8}
-          turbidity={4}
         />
+        <Cloud position={[-50, 36, -80]} speed={0.1} opacity={0.5} segments={8} />
+        <Cloud position={[40, 40, -90]} speed={0.08} opacity={0.45} segments={7} />
 
-        {/* Fluffy clouds */}
-        <Cloud position={[-60, 45, -80]} speed={0.15} opacity={0.6} segments={12} />
-        <Cloud position={[50, 50, -90]} speed={0.10} opacity={0.5} segments={10} />
-        <Cloud position={[0, 42, -70]} speed={0.12} opacity={0.55} segments={8} />
-
-        <DaylightAtmosphere />
-        <CityBuildings />
+        <DayLighting />
+        <ParkAndCity stations={stations} />
         <MetroTrack stations={stations} />
+        <PlatformConnectors stations={stations} />
 
         {stations.map(station => (
           <Station
@@ -204,9 +234,9 @@ export function MetroScene({ stations, activeStation, onStationClick }: MetroSce
           target={orbitTarget}
           enableDamping
           dampingFactor={0.08}
-          maxDistance={120}
-          minDistance={4}
-          maxPolarAngle={Math.PI / 2.1}
+          maxDistance={130}
+          minDistance={3}
+          maxPolarAngle={Math.PI / 2.05}
           makeDefault
         />
       </Canvas>
