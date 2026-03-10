@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User } from 'lucide-react';
 import { MetroScene } from '../components/MetroScene';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
 import { AIInsightsPanel } from '../components/AIInsightsPanel';
@@ -283,7 +283,7 @@ export function Subway() {
             </select>
           </div>
 
-          {/* Search */}
+          {/* Search Repos */}
           <div style={{ position: 'relative' }}>
             <Search size={13} color="#475569" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
@@ -296,14 +296,41 @@ export function Subway() {
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 100, padding: '8px 14px 8px 32px',
                 color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
-                width: 180, fontFamily: 'Inter, sans-serif',
+                width: 150, fontFamily: 'Inter, sans-serif',
                 transition: 'all 0.2s',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.3)'; e.target.style.width = '220px'; }}
-              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '180px'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.3)'; e.target.style.width = '190px'; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '150px'; }}
             />
           </div>
 
+          {/* Search Other User Profile */}
+          <div style={{ position: 'relative' }}>
+            <User size={13} color="#475569" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              type="text"
+              placeholder="Find profile…"
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  const val = e.currentTarget.value.trim();
+                  if (val) {
+                    navigate(`/subway/${val}`);
+                    e.currentTarget.value = '';
+                  }
+                }
+              }}
+              style={{
+                background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 100, padding: '8px 14px 8px 32px',
+                color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
+                width: 130, fontFamily: 'Inter, sans-serif',
+                transition: 'all 0.2s',
+              }}
+              onFocus={e => { e.target.style.borderColor = '#3b82f6'; e.target.style.width = '160px'; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '130px'; }}
+            />
+          </div>
           {/* AI Insights button */}
           <button
             onClick={() => setShowAIInsights(true)}
@@ -340,99 +367,101 @@ export function Subway() {
             <Share2 size={16} />
           </button>
         </div>
-      </div>
 
-      {/* ─── Bottom Timeline Controls ─── */}
-      <div style={{
-        position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-        zIndex: 10,
-      }}>
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          style={{
-            background: 'rgba(6,8,24,0.92)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(0,229,160,0.15)',
-            borderRadius: 100,
-            padding: '6px 8px',
-            display: 'flex', alignItems: 'center', gap: 4,
-            boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.05)',
-          }}
-        >
-          <button
-            onClick={handlePrevStation}
-            disabled={activeStationIndex === null || activeStationIndex === 0}
+
+
+        {/* ─── Bottom Timeline Controls ─── */}
+        <div style={{
+          position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 10,
+        }}>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
             style={{
-              width: 40, height: 40, borderRadius: '50%',
-              border: 'none', background: 'transparent',
-              color: activeStationIndex === 0 ? '#2d3748' : '#94a3b8',
-              cursor: activeStationIndex === 0 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
+              background: 'rgba(6,8,24,0.92)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(0,229,160,0.15)',
+              borderRadius: 100,
+              padding: '6px 8px',
+              display: 'flex', alignItems: 'center', gap: 4,
+              boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.05)',
             }}
           >
-            <ChevronLeft size={22} />
-          </button>
+            <button
+              onClick={handlePrevStation}
+              disabled={activeStationIndex === null || activeStationIndex === 0}
+              style={{
+                width: 40, height: 40, borderRadius: '50%',
+                border: 'none', background: 'transparent',
+                color: activeStationIndex === 0 ? '#2d3748' : '#94a3b8',
+                cursor: activeStationIndex === 0 ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+            >
+              <ChevronLeft size={22} />
+            </button>
 
-          <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
-              <MapPin size={10} color="#00e5a0" />
-              <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
-              </span>
-            </div>
-            <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
-              {activeStation?.repo.name || 'Select a Station'}
-            </div>
-            {activeStation && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: activeStation.color, boxShadow: `0 0 4px ${activeStation.color}` }} />
-                <span style={{ color: '#475569', fontSize: '0.65rem' }}>
-                  {activeStation.repo.language || 'Unknown'} · {new Date(activeStation.repo.created_at).getFullYear()}
+            <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
+                <MapPin size={10} color="#00e5a0" />
+                <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
                 </span>
               </div>
-            )}
-          </div>
+              <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                {activeStation?.repo.name || 'Select a Station'}
+              </div>
+              {activeStation && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: activeStation.color, boxShadow: `0 0 4px ${activeStation.color}` }} />
+                  <span style={{ color: '#475569', fontSize: '0.65rem' }}>
+                    {activeStation.repo.language || 'Unknown'} · {new Date(activeStation.repo.created_at).getFullYear()}
+                  </span>
+                </div>
+              )}
+            </div>
 
-          <button
-            onClick={handleNextStation}
-            disabled={activeStationIndex === null || activeStationIndex === filteredStations.length - 1}
-            style={{
-              width: 40, height: 40, borderRadius: '50%',
-              border: 'none', background: 'transparent',
-              color: activeStationIndex === filteredStations.length - 1 ? '#2d3748' : '#94a3b8',
-              cursor: activeStationIndex === filteredStations.length - 1 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-          >
-            <ChevronRight size={22} />
-          </button>
-        </motion.div>
+            <button
+              onClick={handleNextStation}
+              disabled={activeStationIndex === null || activeStationIndex === filteredStations.length - 1}
+              style={{
+                width: 40, height: 40, borderRadius: '50%',
+                border: 'none', background: 'transparent',
+                color: activeStationIndex === filteredStations.length - 1 ? '#2d3748' : '#94a3b8',
+                cursor: activeStationIndex === filteredStations.length - 1 ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+            >
+              <ChevronRight size={22} />
+            </button>
+          </motion.div>
+        </div>
+
+        {/* ─── Mini Map ─── */}
+        <MiniMap
+          stations={filteredStations}
+          activeStation={activeStation}
+          onStationClick={handleStationClick}
+        />
+
+        {/* ─── Analytics Panel ─── */}
+        <AnalyticsPanel
+          station={activeStation}
+          onClose={() => setActiveStationId(null)}
+        />
+
+        {/* ─── AI Insights Panel ─── */}
+        <AIInsightsPanel
+          user={user}
+          repos={repos}
+          isOpen={showAIInsights}
+          onClose={() => setShowAIInsights(false)}
+        />
       </div>
-
-      {/* ─── Mini Map ─── */}
-      <MiniMap
-        stations={filteredStations}
-        activeStation={activeStation}
-        onStationClick={handleStationClick}
-      />
-
-      {/* ─── Analytics Panel ─── */}
-      <AnalyticsPanel
-        station={activeStation}
-        onClose={() => setActiveStationId(null)}
-      />
-
-      {/* ─── AI Insights Panel ─── */}
-      <AIInsightsPanel
-        user={user}
-        repos={repos}
-        isOpen={showAIInsights}
-        onClose={() => setShowAIInsights(false)}
-      />
     </div>
   );
 }

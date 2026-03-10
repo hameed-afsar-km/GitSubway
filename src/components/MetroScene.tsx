@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Line, Sky, Cloud } from '@react-three/drei';
+import { OrbitControls, Line, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 import { MetroStationData } from '../types';
 import { Station } from './Station';
@@ -105,13 +105,13 @@ function ParkAndCity({ stations }: { stations: MetroStationData[] }) {
   return (
     <group>
       {/* Wide grass ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
         <planeGeometry args={[600, 300]} />
         <meshStandardMaterial color="#5aaa44" roughness={0.95} />
       </mesh>
 
       {/* Gravel ballast bed directly under track */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
         <planeGeometry args={[600, 3]} />
         <meshStandardMaterial color="#b0a898" roughness={0.98} />
       </mesh>
@@ -185,24 +185,20 @@ export function MetroScene({ stations, activeStation, onStationClick }: MetroSce
   return (
     <div
       className="w-full h-full"
-      style={{ background: 'linear-gradient(180deg, #87ceeb 0%, #b8dcf0 40%, #cce8b8 80%, #88c068 100%)' }}
+      style={{ background: '#7ec0ee' }}
     >
       <Canvas
         camera={{ position: [0, 18, 30], fov: 52, near: 0.1, far: 600 }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={Math.min(window.devicePixelRatio, 1.5)}
       >
-        <Sky
-          sunPosition={[80, 50, -40]}
-          inclination={0.48}
-          azimuth={0.22}
-          rayleigh={1.0}
-          turbidity={3}
-          mieCoefficient={0.003}
-          mieDirectionalG={0.8}
-        />
-        <Cloud position={[-50, 36, -80]} speed={0.1} opacity={0.5} segments={8} />
-        <Cloud position={[40, 40, -90]} speed={0.08} opacity={0.45} segments={7} />
+        <color attach="background" args={['#7ec0ee']} />
+        <fog attach="fog" args={['#87d0ff', 40, 400]} />
+
+        <Cloud position={[-50, 36, -80]} speed={0.1} opacity={0.65} segments={8} />
+        <Cloud position={[40, 40, -90]} speed={0.08} opacity={0.6} segments={7} />
+        <Cloud position={[10, 30, -50]} speed={0.12} opacity={0.5} segments={6} />
+        <Cloud position={[-30, 25, -60]} speed={0.09} opacity={0.6} segments={7} />
 
         <DayLighting />
         <ParkAndCity stations={stations} />

@@ -11,8 +11,8 @@ interface TrainProps {
 export function Train({ activeStation, stations }: TrainProps) {
   const trainRef = useRef<THREE.Group>(null);
 
-  // Current world position of the train
-  const currentPos = useRef(new THREE.Vector3(0, 0.6, 0));
+  // Current world position of the train (lowered to sit exactly on track)
+  const currentPos = useRef(new THREE.Vector3(0, 0.34, 0));
   // Which waypoint in `stations` the train is currently AT
   const currentSegIdx = useRef(0);
   // Which waypoint the train must reach (target station index)
@@ -47,7 +47,7 @@ export function Train({ activeStation, stations }: TrainProps) {
     const nextTP = stations[nextIdx]?.trackPosition;
     if (!nextTP) return;
 
-    const waypoint = new THREE.Vector3(nextTP[0], 0.6, nextTP[2]);
+    const waypoint = new THREE.Vector3(nextTP[0], 0.34, nextTP[2]);
     const dir = new THREE.Vector3().subVectors(waypoint, currentPos.current);
     const dist = dir.length();
 

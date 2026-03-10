@@ -55,8 +55,8 @@ export function Station({ data, onClick, isActive }: StationProps) {
       }}
     >
       {/* ── Platform slab ────────────────────────────────────────────── */}
-      <mesh position={[0, platH / 2, 0]}>
-        <boxGeometry args={[platW, platH, platD]} />
+      <mesh position={[0, platH / 2 - 0.2, 0]}>
+        <boxGeometry args={[platW, platH + 0.4, platD]} />
         <meshStandardMaterial
           color={active ? '#f8f8f8' : '#e8e4dc'}
           roughness={0.8}
