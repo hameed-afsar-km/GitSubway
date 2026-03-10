@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Map, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train } from 'lucide-react';
 import { MetroScene } from '../components/MetroScene';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
 import { AIInsightsPanel } from '../components/AIInsightsPanel';
@@ -19,7 +19,7 @@ export function Subway() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [repos, setRepos] = useState<Repository[]>([]);
   const [stations, setStations] = useState<MetroStationData[]>([]);
-  
+
   const [activeStationId, setActiveStationId] = useState<number | null>(null);
   const [showAIInsights, setShowAIInsights] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,18 +32,18 @@ export function Subway() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const [userProfile, userRepos] = await Promise.all([
           fetchUserProfile(username),
           fetchUserRepositories(username)
         ]);
-        
+
         setUser(userProfile);
         setRepos(userRepos);
-        
+
         const generatedStations = generateMetroSystem(userRepos);
         setStations(generatedStations);
-        
+
         if (generatedStations.length > 0) {
           setActiveStationId(generatedStations[0].repo.id);
         }
@@ -60,7 +60,7 @@ export function Subway() {
 
   const filteredStations = useMemo(() => {
     let filtered = stations;
-    
+
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(s => s.repo.name.toLowerCase().includes(lowerQuery));
@@ -73,7 +73,6 @@ export function Subway() {
     return filtered;
   }, [stations, searchQuery, selectedYear]);
 
-  // Update active station if it gets filtered out
   useEffect(() => {
     if (filteredStations.length > 0) {
       const stillExists = filteredStations.find(s => s.repo.id === activeStationId);
@@ -116,15 +115,11 @@ export function Subway() {
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
-    const shareText = `Check out ${username}'s GitSubway - an interactive 3D metro visualization of their GitHub repositories!`;
-    
+    const shareText = `Check out ${username}'s GitSubway — an interactive 3D metro visualization of their GitHub repos!`;
+
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: 'GitSubway',
-          text: shareText,
-          url: shareUrl,
-        });
+        await navigator.share({ title: 'GitSubway', text: shareText, url: shareUrl });
       } catch (err) {
         console.error('Error sharing:', err);
       }
@@ -134,37 +129,80 @@ export function Subway() {
     }
   };
 
+  /* ─── Loading ─── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <Loader2 className="animate-spin text-emerald-500 mb-6" size={48} />
-        <h2 className="text-2xl font-bold mb-2">Connecting to GitHub...</h2>
-        <p className="text-zinc-400">Mapping developer journey for {username}</p>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(180deg, #040410 0%, #060614 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        color: '#e2e8f0', fontFamily: 'Inter, sans-serif',
+      }}>
+        <div style={{ position: 'relative', marginBottom: 24 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            border: '2px solid rgba(0,229,160,0.15)',
+            borderTopColor: '#00e5a0',
+            animation: 'spin 0.9s linear infinite',
+          }} />
+          <Train size={24} color="#00e5a0" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8 }}>Boarding the Metro…</h2>
+        <p style={{ color: '#475569', margin: 0 }}>Mapping developer journey for <span style={{ color: '#00e5a0' }}>@{username}</span></p>
       </div>
     );
   }
 
+  /* ─── Error ─── */
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <div className="bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md text-center">
-          <h2 className="text-xl font-bold text-red-400 mb-4">Connection Failed</h2>
-          <p className="text-zinc-300 mb-6">{error}</p>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(180deg, #040410 0%, #060614 100%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif',
+      }}>
+        <div style={{
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          borderRadius: 16,
+          padding: '32px 40px',
+          maxWidth: 440,
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🚫</div>
+          <h2 style={{ color: '#ef4444', fontSize: '1.2rem', fontWeight: 700, margin: '0 0 12px' }}>
+            Connection Failed
+          </h2>
+          <p style={{ color: '#94a3b8', marginBottom: 24 }}>{error}</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
+            style={{
+              padding: '10px 24px',
+              background: 'rgba(0,229,160,0.12)',
+              border: '1px solid rgba(0,229,160,0.3)',
+              borderRadius: 100,
+              color: '#00e5a0',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontFamily: 'Inter, sans-serif',
+            }}
           >
-            Return Home
+            ← Return Home
           </button>
         </div>
       </div>
     );
   }
 
+  /* ─── Main ─── */
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden font-sans">
+    <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
+
       {/* 3D Scene */}
-      <div className="absolute inset-0 z-0">
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <MetroScene
           stations={filteredStations}
           activeStation={activeStation}
@@ -172,120 +210,224 @@ export function Subway() {
         />
       </div>
 
-      {/* Top Navigation Bar */}
-      <div className="absolute top-0 left-0 w-full p-6 z-10 flex flex-col md:flex-row items-start md:items-center justify-between pointer-events-none gap-4">
-        <div className="flex items-center gap-4 pointer-events-auto">
+      {/* ─── Top Nav ─── */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, width: '100%',
+        padding: '16px 20px',
+        zIndex: 10,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 10,
+        background: 'linear-gradient(180deg, rgba(4,4,16,0.85) 0%, transparent 100%)',
+        pointerEvents: 'none',
+      }}>
+
+        {/* Left: back + user info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
           <button
             onClick={() => navigate('/')}
-            className="p-3 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/10 transition-colors text-white"
+            style={{
+              width: 40, height: 40, borderRadius: '50%',
+              background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(0,229,160,0.2)',
+              color: '#00e5a0', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </button>
-          
-          <div className="bg-zinc-900/80 backdrop-blur-md rounded-2xl border border-white/10 p-2 flex items-center gap-4 pr-6">
-            <img
-              src={user.avatar_url}
-              alt={user.login}
-              className="w-10 h-10 rounded-full border border-white/20"
-            />
+
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(0,229,160,0.15)',
+            borderRadius: 12, padding: '8px 16px 8px 10px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          }}>
+            <img src={user.avatar_url} alt={user.login} style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid rgba(0,229,160,0.3)' }} />
             <div>
-              <h1 className="text-white font-bold leading-tight">{user.name || user.login}</h1>
-              <p className="text-zinc-400 text-xs">{stations.length} Repositories</p>
+              <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.2 }}>
+                {user.name || user.login}
+              </div>
+              <div style={{ color: '#475569', fontSize: '0.7rem' }}>
+                <span style={{ color: '#00e5a0' }}>{stations.length}</span> stations on the line
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 pointer-events-auto">
-          <div className="relative flex items-center bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2">
-            <Filter className="text-zinc-400 mr-2" size={16} />
+        {/* Right: controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto', flexWrap: 'wrap' }}>
+
+          {/* Year filter */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 100, padding: '7px 14px',
+          }}>
+            <Filter size={13} color="#475569" />
             <select
               value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="bg-transparent text-sm text-white focus:outline-none appearance-none cursor-pointer"
+              onChange={e => setSelectedYear(e.target.value)}
+              style={{
+                background: 'transparent', border: 'none',
+                color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
+                cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+              }}
             >
               {availableYears.map(year => (
-                <option key={year} value={year} className="bg-zinc-900 text-white">
+                <option key={year} value={year} style={{ background: '#0d0d20' }}>
                   {year === 'All' ? 'All Years' : year}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={16} />
+          {/* Search */}
+          <div style={{ position: 'relative' }}>
+            <Search size={13} color="#475569" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search stations..."
+              placeholder="Search repos…"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 w-48 md:w-64 transition-all"
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{
+                background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 100, padding: '8px 14px 8px 32px',
+                color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
+                width: 180, fontFamily: 'Inter, sans-serif',
+                transition: 'all 0.2s',
+              }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.3)'; e.target.style.width = '220px'; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '180px'; }}
             />
           </div>
 
+          {/* AI Insights button */}
           <button
             onClick={() => setShowAIInsights(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-full border border-emerald-500/30 transition-colors font-medium text-sm"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 16px',
+              background: 'rgba(0,229,160,0.1)', backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(0,229,160,0.3)',
+              borderRadius: 100, color: '#00e5a0',
+              cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem',
+              boxShadow: '0 0 16px rgba(0,229,160,0.08)',
+              transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,229,160,0.2)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,229,160,0.1)'; }}
           >
-            <Sparkles size={16} />
-            <span className="hidden md:inline">AI Insights</span>
+            <Sparkles size={14} />
+            <span>AI Insights</span>
           </button>
 
+          {/* Share */}
           <button
             onClick={handleShare}
-            className="p-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/10 transition-colors text-white"
+            style={{
+              width: 38, height: 38, borderRadius: '50%',
+              background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94a3b8', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
             title="Share"
           >
-            <Share2 size={20} />
+            <Share2 size={16} />
           </button>
         </div>
       </div>
 
-      {/* Bottom Timeline Controls */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-auto">
-        <div className="bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-full p-2 flex items-center gap-6 shadow-2xl">
+      {/* ─── Bottom Timeline Controls ─── */}
+      <div style={{
+        position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 10,
+      }}>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          style={{
+            background: 'rgba(6,8,24,0.92)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(0,229,160,0.15)',
+            borderRadius: 100,
+            padding: '6px 8px',
+            display: 'flex', alignItems: 'center', gap: 4,
+            boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.05)',
+          }}
+        >
           <button
             onClick={handlePrevStation}
             disabled={activeStationIndex === null || activeStationIndex === 0}
-            className="p-3 rounded-full hover:bg-white/10 disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-white"
+            style={{
+              width: 40, height: 40, borderRadius: '50%',
+              border: 'none', background: 'transparent',
+              color: activeStationIndex === 0 ? '#2d3748' : '#94a3b8',
+              cursor: activeStationIndex === 0 ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={22} />
           </button>
-          
-          <div className="flex flex-col items-center min-w-[200px]">
-            <span className="text-xs text-zinc-400 uppercase tracking-widest mb-1">Current Station</span>
-            <span className="text-white font-bold truncate max-w-[180px]">
-              {activeStation?.repo.name || 'Select a station'}
-            </span>
-            {activeStation && (
-              <span className="text-xs text-zinc-500 mt-1">
-                {new Date(activeStation.repo.created_at).getFullYear()}
+
+          <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
+              <MapPin size={10} color="#00e5a0" />
+              <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
               </span>
+            </div>
+            <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+              {activeStation?.repo.name || 'Select a Station'}
+            </div>
+            {activeStation && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: activeStation.color, boxShadow: `0 0 4px ${activeStation.color}` }} />
+                <span style={{ color: '#475569', fontSize: '0.65rem' }}>
+                  {activeStation.repo.language || 'Unknown'} · {new Date(activeStation.repo.created_at).getFullYear()}
+                </span>
+              </div>
             )}
           </div>
 
           <button
             onClick={handleNextStation}
             disabled={activeStationIndex === null || activeStationIndex === filteredStations.length - 1}
-            className="p-3 rounded-full hover:bg-white/10 disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-white"
+            style={{
+              width: 40, height: 40, borderRadius: '50%',
+              border: 'none', background: 'transparent',
+              color: activeStationIndex === filteredStations.length - 1 ? '#2d3748' : '#94a3b8',
+              cursor: activeStationIndex === filteredStations.length - 1 ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={22} />
           </button>
-        </div>
+        </motion.div>
       </div>
 
-      {/* Mini Map */}
+      {/* ─── Mini Map ─── */}
       <MiniMap
         stations={filteredStations}
         activeStation={activeStation}
         onStationClick={handleStationClick}
       />
 
-      {/* Panels */}
+      {/* ─── Analytics Panel ─── */}
       <AnalyticsPanel
         station={activeStation}
         onClose={() => setActiveStationId(null)}
       />
 
+      {/* ─── AI Insights Panel ─── */}
       <AIInsightsPanel
         user={user}
         repos={repos}

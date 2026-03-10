@@ -1,12 +1,157 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Rajdhani", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-city-bg: #060610;
+  --color-city-surface: #0d0d20;
+  --color-city-border: rgba(80, 120, 255, 0.15);
+  --color-metro-green: #00e5a0;
+  --color-metro-blue: #3b82f6;
+  --color-metro-amber: #f59e0b;
+  --color-neon-glow: rgba(0, 229, 160, 0.4);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #000;
-  color: #fff;
+  background-color: var(--color-city-bg);
+  color: #e2e8f0;
+}
+
+/* City-style scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-metro-green);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00ffb3;
+}
+
+/* Neon text glow utility */
+.neon-text {
+  text-shadow: 0 0 10px var(--color-metro-green), 0 0 30px rgba(0,229,160,0.3);
+}
+
+.neon-border {
+  border-color: var(--color-metro-green);
+  box-shadow: 0 0 12px rgba(0,229,160,0.2), inset 0 0 8px rgba(0,229,160,0.05);
+}
+
+/* City grid overlay background pattern */
+.city-grid-bg {
+  background-image:
+    linear-gradient(rgba(30, 80, 200, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 80, 200, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Panel glass morphism */
+.city-panel {
+  background: rgba(8, 12, 28, 0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(60, 100, 255, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(0,229,160,0.05),
+    0 20px 60px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Station marker pulse animation */
+@keyframes station-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+
+/* Train moving animation */
+@keyframes train-move {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+}
+
+/* Neon flicker */
+@keyframes neon-flicker {
+  0%, 100% { opacity: 1; }
+  95% { opacity: 1; }
+  96% { opacity: 0.8; }
+  97% { opacity: 1; }
+  98% { opacity: 0.6; }
+  99% { opacity: 1; }
+}
+
+/* Building silhouette animation */
+@keyframes building-lights {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Slide-in animation for panels */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Markdown body styles for AI panel */
+.markdown-body {
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  color: #00e5a0;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  font-weight: 700;
+}
+
+.markdown-body h1 { font-size: 1.4em; }
+.markdown-body h2 { font-size: 1.2em; }
+.markdown-body h3 { font-size: 1.05em; }
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.markdown-body li {
+  margin-bottom: 0.3em;
+}
+
+.markdown-body strong {
+  color: #e2e8f0;
+}
+
+.markdown-body code {
+  background: rgba(0,229,160,0.1);
+  color: #00e5a0;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.markdown-body p {
+  margin-bottom: 0.75em;
 }
