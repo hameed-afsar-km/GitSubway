@@ -22,6 +22,7 @@ export interface UserProfile {
   following: number;
   html_url: string;
   bio: string | null;
+  created_at: string;
 }
 
 export interface MetroStationData {

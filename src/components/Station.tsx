@@ -10,17 +10,16 @@ interface StationProps {
   isActive: boolean;
 }
 
-// Size-scaled metro station — Nebula Transit Ring
+// Size-scaled metro station — Modular Prism Terminal
 export function Station({ data, onClick, isActive }: StationProps) {
   const [hovered, setHovered] = useState(false);
 
   const s = data.size;           
   const active = isActive || hovered;
 
-  // Ring scales
-  const innerRadius = 3.5 + s * 1.5;
-  const outerRadius = innerRadius + 0.4;
-  const depth = 2.5 + s * 0.8;
+  // Terminal scales
+  const baseSize = 4 + s * 2;
+  const pillarHeight = 3 + s;
   const col = data.color;
 
   return (
@@ -37,51 +36,70 @@ export function Station({ data, onClick, isActive }: StationProps) {
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* ── Main Structural Ring ── */}
-      <mesh rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[innerRadius + 0.2, 0.15, 16, 64]} />
-        <meshStandardMaterial color="#0f172a" metalness={1} roughness={0.1} />
+      {/* ── Main Platform Base ── */}
+      <mesh position={[0, -0.1, 0]}>
+        <boxGeometry args={[baseSize, 0.2, baseSize]} />
+        <meshStandardMaterial color="#0f172a" metalness={0.8} roughness={0.2} />
       </mesh>
 
-      {/* ── Glowing Inner Energy Core ── */}
-      <mesh rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[innerRadius, 0.05, 8, 100]} />
+      {/* ── Illuminated Edge Detail ── */}
+      <mesh position={[0, -0.05, 0]}>
+        <boxGeometry args={[baseSize + 0.1, 0.05, baseSize + 0.1]} />
         <meshBasicMaterial color={active ? col : '#1e293b'} />
       </mesh>
 
-      {/* ── Segmented Glass Data Panels (Inner Ring) ── */}
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <group key={i} rotation={[ (i * Math.PI) / 3, 0, 0]}>
-          <mesh position={[0, innerRadius - 0.1, 0]}>
-            <boxGeometry args={[depth, 0.05, 1.2]} />
-            <meshStandardMaterial 
-              color={col} 
-              transparent 
-              opacity={active ? 0.3 : 0.05} 
-              emissive={col}
-              emissiveIntensity={active ? 1 : 0.1}
-            />
+      {/* ── Structural Pillars ── */}
+      {[[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([x, z], i) => (
+        <group key={i} position={[x * (baseSize / 2 - 0.3), pillarHeight / 2, z * (baseSize / 2 - 0.3)]}>
+          {/* Main Pillar */}
+          <mesh>
+            <boxGeometry args={[0.2, pillarHeight, 0.2]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.1} />
+          </mesh>
+          {/* Glowing Detail */}
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.22, active ? pillarHeight : 0.1, 0.22]} />
+            <meshBasicMaterial color={col} transparent opacity={active ? 0.8 : 0.2} />
           </mesh>
         </group>
       ))}
 
-      {/* ── Floating Platform Walkway ── */}
-      <mesh position={[0, -innerRadius + 0.2, 0]}>
-        <boxGeometry args={[depth, 0.1, 2]} />
-        <meshStandardMaterial color="#020617" roughness={0.05} metalness={0.9} />
+      {/* ── Glass Canopy / Data Roof ── */}
+      <mesh position={[0, pillarHeight, 0]}>
+        <boxGeometry args={[baseSize, 0.1, baseSize]} />
+        <meshStandardMaterial 
+          color={col} 
+          transparent 
+          opacity={active ? 0.2 : 0.05} 
+          metalness={1}
+          roughness={0}
+        />
       </mesh>
 
-      {/* ── Holographic Station HUD ── */}
-      <group position={[0, 1.5, 0]}>
-        {/* Ring Halo around text */}
-        <mesh rotation={[0, Math.PI / 2, 0]}>
-          <torusGeometry args={[1.2, 0.01, 12, 64]} />
-          <meshBasicMaterial color={col} transparent opacity={0.4} />
-        </mesh>
+      {/* ── Ground Grid (Industrial Look) ── */}
+      <gridHelper 
+        args={[baseSize * 0.9, 10, col, '#1e293b']} 
+        position={[0, 0.01, 0]} 
+        rotation={[0, 0, 0]}
+      />
 
+      {/* ── Floating Data Core (Center) ── */}
+      <mesh position={[0, pillarHeight / 2, 0]}>
+        <octahedronGeometry args={[0.8]} />
+        <meshStandardMaterial 
+          color={col} 
+          emissive={col}
+          emissiveIntensity={active ? 2 : 0.5}
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+
+      {/* ── Station Name & Stats ── */}
+      <group position={[0, pillarHeight + 1, 0]}>
         <Text
           position={[0, 0.2, 0]}
-          fontSize={0.3}
+          fontSize={0.4}
           color="#ffffff"
           fontWeight="900"
           anchorX="center"
@@ -91,7 +109,7 @@ export function Station({ data, onClick, isActive }: StationProps) {
         
         <Text
           position={[0, -0.2, 0]}
-          fontSize={0.16}
+          fontSize={0.2}
           color={col}
           fontWeight="bold"
           anchorX="center"
@@ -100,14 +118,13 @@ export function Station({ data, onClick, isActive }: StationProps) {
         </Text>
       </group>
 
-      {/* ── Volumetric Light Aura ── */}
+      {/* ── Environmental Lighting ── */}
       {active && (
         <pointLight
-          position={[0, 0, 0]}
+          position={[0, pillarHeight / 2, 0]}
           color={col}
-          intensity={4}
-          distance={25}
-          decay={1.5}
+          intensity={5}
+          distance={15}
         />
       )}
     </group>

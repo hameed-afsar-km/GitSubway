@@ -9,6 +9,7 @@ import { MiniMap } from '../components/MiniMap';
 import { fetchUserProfile, fetchUserRepositories } from '../services/githubApi';
 import { generateMetroSystem } from '../utils/visualMapping';
 import { UserProfile, Repository, MetroStationData } from '../types';
+import { BattleArena } from '../components/BattleArena';
 
 export function Subway() {
   const { username } = useParams<{ username: string }>();
@@ -24,6 +25,7 @@ export function Subway() {
   const [showAIInsights, setShowAIInsights] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('All');
+  const [isBattleMode, setIsBattleMode] = useState(false);
 
   useEffect(() => {
     if (!username) return;
@@ -331,7 +333,6 @@ export function Subway() {
               onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '130px'; }}
             />
           </div>
-          {/* AI Insights button */}
           <button
             onClick={() => setShowAIInsights(true)}
             style={{
@@ -349,6 +350,26 @@ export function Subway() {
           >
             <Sparkles size={14} />
             <span>AI Insights</span>
+          </button>
+
+          {/* Battle button */}
+          <button
+            onClick={() => setIsBattleMode(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 16px',
+              background: 'rgba(239, 68, 68, 0.1)', backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 100, color: '#ef4444',
+              cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem',
+              boxShadow: '0 0 16px rgba(239, 68, 68, 0.08)',
+              transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.2)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.1)'; }}
+          >
+            <Train size={14} style={{ transform: 'rotate(90deg)' }} />
+            <span>Subway Battle</span>
           </button>
 
           {/* Share */}
@@ -453,12 +474,19 @@ export function Subway() {
         onClose={() => setActiveStationId(null)}
       />
 
-      {/* ─── AI Insights Panel ─── */}
       <AIInsightsPanel
         user={user}
         repos={repos}
         isOpen={showAIInsights}
         onClose={() => setShowAIInsights(false)}
+      />
+
+      {/* ─── Battle Arena Overlay ─── */}
+      <BattleArena
+        currentUser={user}
+        currentRepos={repos}
+        isOpen={isBattleMode}
+        onClose={() => setIsBattleMode(false)}
       />
     </div>
   );
