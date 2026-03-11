@@ -10,18 +10,17 @@ interface StationProps {
   isActive: boolean;
 }
 
-// Size-scaled metro station — Holographic Vortex Hub
+// Size-scaled metro station — Nebula Transit Ring
 export function Station({ data, onClick, isActive }: StationProps) {
   const [hovered, setHovered] = useState(false);
 
   const s = data.size;           
   const active = isActive || hovered;
 
-  // Terminal scales
-  const platRadius = 2.4 + s * 1.2;
-  const platH = 0.22;
-  const haloRadius = platRadius + 1.2;
-  const beamH = 4.5 + s * 0.5;
+  // Ring scales
+  const innerRadius = 3.5 + s * 1.5;
+  const outerRadius = innerRadius + 0.4;
+  const depth = 2.5 + s * 0.8;
   const col = data.color;
 
   return (
@@ -38,73 +37,51 @@ export function Station({ data, onClick, isActive }: StationProps) {
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* ── Polished Obsidian Disk Platform ── */}
-      <mesh position={[0, platH / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[platRadius, platRadius, platH, 32]} />
-        <meshStandardMaterial
-          color={active ? '#0f172a' : '#020617'}
-          roughness={0.01}
-          metalness={1}
-        />
+      {/* ── Main Structural Ring ── */}
+      <mesh rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[innerRadius + 0.2, 0.15, 16, 64]} />
+        <meshStandardMaterial color="#0f172a" metalness={1} roughness={0.1} />
       </mesh>
 
-      {/* ── Rotating Energy Rings ── */}
-      <mesh position={[0, platH + 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[platRadius - 0.2, 0.03, 16, 100]} />
+      {/* ── Glowing Inner Energy Core ── */}
+      <mesh rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[innerRadius, 0.05, 8, 100]} />
         <meshBasicMaterial color={active ? col : '#1e293b'} />
       </mesh>
-      
-      {/* ── Twin Energy Stabilizers (Light Beams) ── */}
-      {[[-platRadius + 0.5, 0], [platRadius - 0.5, 0]].map(([px, pz], i) => (
-        <group key={i} position={[px, beamH / 2 + platH, pz]}>
-          <mesh>
-            <cylinderGeometry args={[0.08, 0.08, beamH, 8]} />
-            <meshStandardMaterial color="#ffffff" transparent opacity={0.2} metalness={1} />
-          </mesh>
-          <mesh position={[0, 0, 0]}>
-            <cylinderGeometry args={[0.03, 0.03, beamH + 0.2, 8]} />
-            <meshBasicMaterial color={active ? col : '#475569'} />
+
+      {/* ── Segmented Glass Data Panels (Inner Ring) ── */}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <group key={i} rotation={[ (i * Math.PI) / 3, 0, 0]}>
+          <mesh position={[0, innerRadius - 0.1, 0]}>
+            <boxGeometry args={[depth, 0.05, 1.2]} />
+            <meshStandardMaterial 
+              color={col} 
+              transparent 
+              opacity={active ? 0.3 : 0.05} 
+              emissive={col}
+              emissiveIntensity={active ? 1 : 0.1}
+            />
           </mesh>
         </group>
       ))}
 
-      {/* ── Floating Hexagonal Energy Halo ── */}
-      <group position={[0, beamH + platH, 0]}>
-        <mesh rotation={[Math.PI / 2, 0, Math.PI / 6]}>
-          <cylinderGeometry args={[haloRadius, haloRadius, 0.1, 6, 1, true]} />
-          <meshStandardMaterial 
-            color="#ffffff" 
-            transparent 
-            opacity={active ? 0.4 : 0.2} 
-            metalness={1} 
-            roughness={0} 
-          />
-        </mesh>
-        {/* Glow Inner Edge */}
-        <mesh rotation={[Math.PI / 2, 0, Math.PI / 6]}>
-           <cylinderGeometry args={[haloRadius - 0.1, haloRadius - 0.1, 0.02, 6, 1, true]} />
-           <meshBasicMaterial color={active ? col : '#334155'} />
-        </mesh>
-      </group>
+      {/* ── Floating Platform Walkway ── */}
+      <mesh position={[0, -innerRadius + 0.2, 0]}>
+        <boxGeometry args={[depth, 0.1, 2]} />
+        <meshStandardMaterial color="#020617" roughness={0.05} metalness={0.9} />
+      </mesh>
 
-      {/* ── Holographic Vertical Display ── */}
-      <group position={[0, 2.8, platRadius * 0.4]}>
-        {/* Glass Blade */}
-        <mesh>
-          <planeGeometry args={[2.5, 1.2]} />
-          <meshStandardMaterial 
-            color={col} 
-            transparent 
-            opacity={active ? 0.4 : 0.1} 
-            emissive={col} 
-            emissiveIntensity={active ? 1.5 : 0.2}
-            side={THREE.DoubleSide}
-          />
+      {/* ── Holographic Station HUD ── */}
+      <group position={[0, 1.5, 0]}>
+        {/* Ring Halo around text */}
+        <mesh rotation={[0, Math.PI / 2, 0]}>
+          <torusGeometry args={[1.2, 0.01, 12, 64]} />
+          <meshBasicMaterial color={col} transparent opacity={0.4} />
         </mesh>
-        
+
         <Text
-          position={[0, 0.2, 0.02]}
-          fontSize={0.28}
+          position={[0, 0.2, 0]}
+          fontSize={0.3}
           color="#ffffff"
           fontWeight="900"
           anchorX="center"
@@ -113,9 +90,9 @@ export function Station({ data, onClick, isActive }: StationProps) {
         </Text>
         
         <Text
-          position={[0, -0.2, 0.02]}
+          position={[0, -0.2, 0]}
           fontSize={0.16}
-          color="#ffffff"
+          color={col}
           fontWeight="bold"
           anchorX="center"
         >
@@ -123,14 +100,14 @@ export function Station({ data, onClick, isActive }: StationProps) {
         </Text>
       </group>
 
-      {/* ── Ground Light Pulse ── */}
+      {/* ── Volumetric Light Aura ── */}
       {active && (
         <pointLight
-          position={[0, 2.5, 0]}
+          position={[0, 0, 0]}
           color={col}
-          intensity={3.5}
-          distance={20}
-          decay={1.2}
+          intensity={4}
+          distance={25}
+          decay={1.5}
         />
       )}
     </group>
