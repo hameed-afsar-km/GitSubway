@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ArrowRight, TrainFront, Compass, MapPin } from 'lucide-react';
+import { Github, ArrowRight, TrainFront, Compass, MapPin, Search } from 'lucide-react';
 import PrismBackground from '../components/PrismBackground';
+import { GradientButton } from '../components/ui/gradient-button';
 
 export function Home() {
   const [username, setUsername] = useState('');
@@ -94,22 +95,18 @@ export function Home() {
               transition={{ delay: 0.3, duration: 0.6 }}
               style={{ textAlign: 'center', marginBottom: 48 }}
             >
-              <h1 style={{
-                fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              <h1 className="prism-text-gradient" style={{
+                fontSize: 'clamp(3rem, 10vw, 6rem)',
                 fontWeight: 900,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.1,
+                letterSpacing: '-0.04em',
+                lineHeight: 1,
                 margin: '0 0 16px',
-                background: 'linear-gradient(180deg, #ffffff 0%, #94a3b8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
               }}>
-                Board the <span style={{ background: 'linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>GitSubway</span>
+                GitSubway
               </h1>
               <p style={{
                 fontSize: '1.1rem',
-                color: '#64748b',
+                color: '#ffffffff',
                 maxWidth: 480,
                 margin: '0 auto',
                 lineHeight: 1.6
@@ -163,27 +160,14 @@ export function Home() {
                 }}
               />
 
-              <button
+              <GradientButton
                 type="submit"
                 disabled={!username.trim()}
-                style={{
-                  background: username.trim() ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'rgba(255,255,255,0.05)',
-                  color: username.trim() ? '#ffffff' : '#475569',
-                  border: 'none',
-                  borderRadius: 16,
-                  padding: '0 28px',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  cursor: username.trim() ? 'pointer' : 'not-allowed',
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: username.trim() ? '0 0 20px rgba(37,99,235,0.4)' : 'none',
-                  fontFamily: 'Inter, sans-serif'
-                }}
+                className="ml-2"
               >
-                <span>Enter World</span>
-                <ArrowRight size={18} />
-              </button>
+                <span>Search Profile</span>
+                <Search size={18} className="ml-2" />
+              </GradientButton>
             </motion.form>
 
             <motion.div
@@ -192,7 +176,7 @@ export function Home() {
               transition={{ delay: 0.6, duration: 1 }}
               style={{
                 display: 'flex', gap: 24, marginTop: 40,
-                color: '#475569', fontSize: '0.85rem', fontWeight: 500
+                color: '#fafafaff', fontSize: '0.85rem', fontWeight: 500
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
