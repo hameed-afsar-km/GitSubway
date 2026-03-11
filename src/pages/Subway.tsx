@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User, Sun, Moon, Leaf, Snowflake, Flower, Mountain } from 'lucide-react';
 import { MetroScene } from '../components/MetroScene';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
 import { AIInsightsPanel } from '../components/AIInsightsPanel';
 import { MiniMap } from '../components/MiniMap';
 import { fetchUserProfile, fetchUserRepositories } from '../services/githubApi';
 import { generateMetroSystem } from '../utils/visualMapping';
-import { UserProfile, Repository, MetroStationData } from '../types';
+import { UserProfile, Repository, MetroStationData, VisualEnvironment } from '../types';
 import { BattleArena } from '../components/BattleArena';
 
 export function Subway() {
@@ -26,6 +26,7 @@ export function Subway() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('All');
   const [isBattleMode, setIsBattleMode] = useState(false);
+  const [environment, setEnvironment] = useState<VisualEnvironment>('day');
 
   useEffect(() => {
     if (!username) return;
@@ -198,6 +199,23 @@ export function Subway() {
     );
   }
 
+  const EnvButton = ({ type, icon: Icon, label }: { type: VisualEnvironment; icon: any; label: string }) => (
+    <button
+      onClick={() => setEnvironment(type)}
+      title={label}
+      style={{
+        width: 32, height: 32, borderRadius: 8,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: environment === type ? 'rgba(0,229,160,0.2)' : 'transparent',
+        border: environment === type ? '1px solid rgba(0,229,160,0.4)' : '1px solid transparent',
+        color: environment === type ? '#00e5a0' : '#475569',
+        cursor: 'pointer', transition: 'all 0.2s',
+      }}
+    >
+      <Icon size={16} />
+    </button>
+  );
+
   /* ─── Main ─── */
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
@@ -207,8 +225,28 @@ export function Subway() {
         <MetroScene
           stations={filteredStations}
           activeStation={activeStation}
+          environment={environment}
           onStationClick={handleStationClick}
         />
+      </div>
+
+      {/* ─── Environmental Dock (Left) ─── */}
+      <div style={{
+        position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
+        zIndex: 20, display: 'flex', flexDirection: 'column', gap: 8,
+        background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 100, padding: '10px 6px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+      }}>
+        <EnvButton type="day" icon={Sun} label="Day" />
+        <EnvButton type="night" icon={Moon} label="Night" />
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 6px' }} />
+        <EnvButton type="summer" icon={Mountain} label="Summer" />
+        <EnvButton type="autumn" icon={Leaf} label="Autumn" />
+        <EnvButton type="winter" icon={Snowflake} label="Winter" />
+        <EnvButton type="spring" icon={Flower} label="Spring" />
+        <EnvButton type="blossom" icon={Flower} label="Blossom" />
       </div>
 
       {/* ─── Top Nav ─── */}
@@ -298,41 +336,14 @@ export function Subway() {
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 100, padding: '8px 14px 8px 32px',
                 color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
-                width: 150, fontFamily: 'Inter, sans-serif',
+                width: 140, fontFamily: 'Inter, sans-serif',
                 transition: 'all 0.2s',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.3)'; e.target.style.width = '190px'; }}
-              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '150px'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.3)'; e.target.style.width = '180px'; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '140px'; }}
             />
           </div>
 
-          {/* Search Other User Profile */}
-          <div style={{ position: 'relative' }}>
-            <User size={13} color="#475569" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              type="text"
-              placeholder="Find profile…"
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  const val = e.currentTarget.value.trim();
-                  if (val) {
-                    navigate(`/subway/${val}`);
-                    e.currentTarget.value = '';
-                  }
-                }
-              }}
-              style={{
-                background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 100, padding: '8px 14px 8px 32px',
-                color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
-                width: 130, fontFamily: 'Inter, sans-serif',
-                transition: 'all 0.2s',
-              }}
-              onFocus={e => { e.target.style.borderColor = '#3b82f6'; e.target.style.width = '160px'; }}
-              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '130px'; }}
-            />
-          </div>
           <button
             onClick={() => setShowAIInsights(true)}
             style={{
@@ -345,8 +356,6 @@ export function Subway() {
               boxShadow: '0 0 16px rgba(0,229,160,0.08)',
               transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,229,160,0.2)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,229,160,0.1)'; }}
           >
             <Sparkles size={14} />
             <span>AI Insights</span>
@@ -365,8 +374,6 @@ export function Subway() {
               boxShadow: '0 0 16px rgba(239, 68, 68, 0.08)',
               transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.2)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.1)'; }}
           >
             <Train size={14} style={{ transform: 'rotate(90deg)' }} />
             <span>Subway Battle</span>
