@@ -1,25 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github, ArrowRight, TrainFront, Compass, MapPin } from 'lucide-react';
+import PrismBackground from '../components/PrismBackground';
 
 export function Home() {
   const [username, setUsername] = useState('');
   const [isEntering, setIsEntering] = useState(false);
   const navigate = useNavigate();
-
-  // Floating particles background effect
-  const [particles, setParticles] = useState<{ x: number, y: number, s: number, d: number }[]>([]);
-  useEffect(() => {
-    setParticles(
-      Array.from({ length: 40 }).map(() => ({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        s: 0.5 + Math.random() * 1.5,
-        d: 2 + Math.random() * 4,
-      }))
-    );
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,48 +33,20 @@ export function Home() {
       justifyContent: 'center'
     }}>
       {/* Dynamic Background */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 60%), radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)',
-        zIndex: 0
-      }} />
-
-      {/* Grid pattern overlay */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-        transform: 'perspective(500px) rotateX(60deg) translateY(-100px) scale(3)',
-        transformOrigin: 'top center',
-        zIndex: 0,
-      }} />
-
-      {/* Floating particles */}
-      {particles.map((p, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            y: [p.y + '%', p.y - 20 + '%'],
-            opacity: [0, 0.6, 0],
-          }}
-          transition={{
-            duration: p.d,
-            repeat: Infinity,
-            ease: "linear",
-            delay: p.d * Math.random()
-          }}
-          style={{
-            position: 'absolute',
-            left: `${p.x}%`,
-            width: p.s,
-            height: p.s,
-            borderRadius: '50%',
-            background: '#38bdf8',
-            boxShadow: '0 0 10px #38bdf8',
-            zIndex: 1
-          }}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+        <PrismBackground
+          animationType="hover"
+          timeScale={0.5}
+          height={3.5}
+          baseWidth={5.5}
+          scale={3.6}
+          hueShift={0.5} // Slight shift towards deep blues for the metro theme
+          colorFrequency={1}
+          noise={0.5}
+          glow={1}
+          suspendWhenOffscreen={true}
         />
-      ))}
+      </div>
 
       {/* Main Content Container */}
       <AnimatePresence>

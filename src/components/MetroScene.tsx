@@ -105,15 +105,10 @@ function ParkAndCity({ stations }: { stations: MetroStationData[] }) {
   return (
     <group>
       {/* Wide grass ground */}
+      {/* Massive grass ground to cover all track bounds */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
-        <planeGeometry args={[600, 300]} />
+        <planeGeometry args={[8000, 8000]} />
         <meshStandardMaterial color="#5aaa44" roughness={0.95} />
-      </mesh>
-
-      {/* Gravel ballast bed directly under track */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
-        <planeGeometry args={[600, 3]} />
-        <meshStandardMaterial color="#b0a898" roughness={0.98} />
       </mesh>
 
       {/* Trees */}
