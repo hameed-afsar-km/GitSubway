@@ -367,101 +367,99 @@ export function Subway() {
             <Share2 size={16} />
           </button>
         </div>
+      </div>
 
-
-
-        {/* ─── Bottom Timeline Controls ─── */}
-        <div style={{
-          position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-          zIndex: 10,
-        }}>
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
+      {/* ─── Bottom Timeline Controls ─── */}
+      <div style={{
+        position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 10,
+      }}>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          style={{
+            background: 'rgba(6,8,24,0.92)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(0,229,160,0.15)',
+            borderRadius: 100,
+            padding: '6px 8px',
+            display: 'flex', alignItems: 'center', gap: 4,
+            boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.05)',
+          }}
+        >
+          <button
+            onClick={handlePrevStation}
+            disabled={activeStationIndex === null || activeStationIndex === 0}
             style={{
-              background: 'rgba(6,8,24,0.92)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(0,229,160,0.15)',
-              borderRadius: 100,
-              padding: '6px 8px',
-              display: 'flex', alignItems: 'center', gap: 4,
-              boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.05)',
+              width: 40, height: 40, borderRadius: '50%',
+              border: 'none', background: 'transparent',
+              color: activeStationIndex === 0 ? '#2d3748' : '#94a3b8',
+              cursor: activeStationIndex === 0 ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
             }}
           >
-            <button
-              onClick={handlePrevStation}
-              disabled={activeStationIndex === null || activeStationIndex === 0}
-              style={{
-                width: 40, height: 40, borderRadius: '50%',
-                border: 'none', background: 'transparent',
-                color: activeStationIndex === 0 ? '#2d3748' : '#94a3b8',
-                cursor: activeStationIndex === 0 ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all 0.2s',
-              }}
-            >
-              <ChevronLeft size={22} />
-            </button>
+            <ChevronLeft size={22} />
+          </button>
 
-            <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
-                <MapPin size={10} color="#00e5a0" />
-                <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
+          <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
+              <MapPin size={10} color="#00e5a0" />
+              <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
+              </span>
+            </div>
+            <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+              {activeStation?.repo.name || 'Select a Station'}
+            </div>
+            {activeStation && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: activeStation.color, boxShadow: `0 0 4px ${activeStation.color}` }} />
+                <span style={{ color: '#475569', fontSize: '0.65rem' }}>
+                  {activeStation.repo.language || 'Unknown'} · {new Date(activeStation.repo.created_at).getFullYear()}
                 </span>
               </div>
-              <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
-                {activeStation?.repo.name || 'Select a Station'}
-              </div>
-              {activeStation && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: activeStation.color, boxShadow: `0 0 4px ${activeStation.color}` }} />
-                  <span style={{ color: '#475569', fontSize: '0.65rem' }}>
-                    {activeStation.repo.language || 'Unknown'} · {new Date(activeStation.repo.created_at).getFullYear()}
-                  </span>
-                </div>
-              )}
-            </div>
+            )}
+          </div>
 
-            <button
-              onClick={handleNextStation}
-              disabled={activeStationIndex === null || activeStationIndex === filteredStations.length - 1}
-              style={{
-                width: 40, height: 40, borderRadius: '50%',
-                border: 'none', background: 'transparent',
-                color: activeStationIndex === filteredStations.length - 1 ? '#2d3748' : '#94a3b8',
-                cursor: activeStationIndex === filteredStations.length - 1 ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all 0.2s',
-              }}
-            >
-              <ChevronRight size={22} />
-            </button>
-          </motion.div>
-        </div>
-
-        {/* ─── Mini Map ─── */}
-        <MiniMap
-          stations={filteredStations}
-          activeStation={activeStation}
-          onStationClick={handleStationClick}
-        />
-
-        {/* ─── Analytics Panel ─── */}
-        <AnalyticsPanel
-          station={activeStation}
-          onClose={() => setActiveStationId(null)}
-        />
-
-        {/* ─── AI Insights Panel ─── */}
-        <AIInsightsPanel
-          user={user}
-          repos={repos}
-          isOpen={showAIInsights}
-          onClose={() => setShowAIInsights(false)}
-        />
+          <button
+            onClick={handleNextStation}
+            disabled={activeStationIndex === null || activeStationIndex === filteredStations.length - 1}
+            style={{
+              width: 40, height: 40, borderRadius: '50%',
+              border: 'none', background: 'transparent',
+              color: activeStationIndex === filteredStations.length - 1 ? '#2d3748' : '#94a3b8',
+              cursor: activeStationIndex === filteredStations.length - 1 ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+          >
+            <ChevronRight size={22} />
+          </button>
+        </motion.div>
       </div>
+
+      {/* ─── Mini Map ─── */}
+      <MiniMap
+        stations={filteredStations}
+        activeStation={activeStation}
+        onStationClick={handleStationClick}
+      />
+
+      {/* ─── Analytics Panel ─── */}
+      <AnalyticsPanel
+        station={activeStation}
+        onClose={() => setActiveStationId(null)}
+      />
+
+      {/* ─── AI Insights Panel ─── */}
+      <AIInsightsPanel
+        user={user}
+        repos={repos}
+        isOpen={showAIInsights}
+        onClose={() => setShowAIInsights(false)}
+      />
     </div>
   );
 }
