@@ -24,7 +24,8 @@ export interface UserProfile {
   bio: string | null;
   created_at: string;
 }
-export type VisualEnvironment = 'day' | 'night' | 'summer' | 'winter' | 'autumn' | 'spring' | 'blossom';
+export type TimeOfDay = 'day' | 'night';
+export type Season = 'summer' | 'winter' | 'autumn' | 'spring' | 'blossom';
 
 export interface MetroStationData {
   repo: Repository;

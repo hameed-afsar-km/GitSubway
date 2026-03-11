@@ -86,6 +86,30 @@ function Building({ pos, w, h, d, col, env }: {
   );
 }
 
+// ─── Procedural Street Light ────────────────────────────────────────────────
+function StreetLight({ pos, env }: { pos: [number, number, number]; env: VisualEnvironment }) {
+  const isDark = ['night', 'autumn', 'winter'].includes(env);
+  return (
+    <group position={pos}>
+      <mesh position={[0, 2.5, 0]}>
+        <cylinderGeometry args={[0.06, 0.08, 5, 6]} />
+        <meshStandardMaterial color="#334155" metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 5, 0.2]} rotation={[0.4, 0, 0]}>
+        <boxGeometry args={[0.3, 0.15, 0.6]} />
+        <meshStandardMaterial color="#1e293b" />
+      </mesh>
+      <mesh position={[0, 4.85, 0.4]}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshBasicMaterial color={isDark ? "#fef08a" : "#475569"} />
+      </mesh>
+      {isDark && (
+        <pointLight position={[0, 4.5, 0.4]} intensity={12} distance={20} color="#fef08a" decay={2} />
+      )}
+    </group>
+  );
+}
+
 // ─── Procedural Grass Tuft ──────────────────────────────────────────────────
 function GrassTuft({ pos, scale, env }: { pos: [number, number, number]; scale: number; env: VisualEnvironment }) {
   const col = env === 'winter' ? '#e2e8f0' : env === 'autumn' ? '#b45309' : '#4ade80';
@@ -123,6 +147,38 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
         ...stations.map(s => s.position)
     ];
   }, [stations]);
+
+  // Generate Street Lights closer to the track
+  const streetLights = useMemo(() => {
+    const result: { pos: [number, number, number] }[] = [];
+    let seed = 777;
+    if (stations.length === 0) return result;
+
+    for (let i = 0; i < stations.length - 1; i++) {
+        const start = stations[i].trackPosition;
+        const end = stations[i+1].trackPosition;
+        
+        for(let j = 0; j < 2; j++) {
+            const t = seeded(seed++) * 0.9 + 0.05;
+            const xBase = start[0] + (end[0] - start[0]) * t;
+            const zBase = start[2] + (end[2] - start[2]) * t;
+            const side = seeded(seed++) > 0.5 ? 1 : -1;
+            const offset = 8;
+            const dx = end[0] - start[0];
+            const dz = end[2] - start[2];
+            const px = -dz;
+            const pz = dx;
+            const len = Math.sqrt(px*px + pz*pz) || 1;
+            const x = xBase + (px/len) * offset * side;
+            const z = zBase + (pz/len) * offset * side;
+
+            if (isSafe(x, z, exclusionPts, 6)) {
+                result.push({ pos: [x, 0, z] });
+            }
+        }
+    }
+    return result;
+  }, [stations, exclusionPts]);
 
   // Generate trees scattered along the track segments
   const trees = useMemo(() => {
@@ -252,6 +308,11 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
       {/* Grass Tufts */}
       {grass.map((g, i) => (
         <GrassTuft key={i} pos={g.pos} scale={g.scale} env={env} />
+      ))}
+
+      {/* Street Lights */}
+      {streetLights.map((sl, i) => (
+        <StreetLight key={i} pos={sl.pos} env={env} />
       ))}
 
       {/* Trees */}

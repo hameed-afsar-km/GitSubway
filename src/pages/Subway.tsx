@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User, Sun, Moon, Leaf, Snowflake, Flower, Mountain } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User, Sun, Moon, Leaf, Snowflake, Flower, Mountain, Infinity as InfinityIcon, Rocket, Brain, Shield } from 'lucide-react';
 import { MetroScene } from '../components/MetroScene';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
 import { AIInsightsPanel } from '../components/AIInsightsPanel';
@@ -10,6 +10,8 @@ import { fetchUserProfile, fetchUserRepositories } from '../services/githubApi';
 import { generateMetroSystem } from '../utils/visualMapping';
 import { UserProfile, Repository, MetroStationData, VisualEnvironment } from '../types';
 import { BattleArena } from '../components/BattleArena';
+
+import AnoAI from '../components/ui/animated-shader-background';
 
 export function Subway() {
   const { username } = useParams<{ username: string }>();
@@ -131,27 +133,49 @@ export function Subway() {
     }
   };
 
-  /* ─── Loading ─── */
+  /* ─── Premium Loading Screen ─── */
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(180deg, #040410 0%, #060614 100%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        color: '#e2e8f0', fontFamily: 'Inter, sans-serif',
-      }}>
-        <div style={{ position: 'relative', marginBottom: 24 }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: '50%',
-            border: '2px solid rgba(0,229,160,0.15)',
-            borderTopColor: '#00e5a0',
-            animation: 'spin 0.9s linear infinite',
-          }} />
-          <Train size={24} color="#00e5a0" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
+      <div className="relative w-full h-screen bg-black flex flex-col items-center justify-center overflow-hidden font-sans">
+        <AnoAI />
+        
+        <div className="relative z-10 flex flex-col items-center gap-8 max-w-md w-full px-6">
+          <div className="relative flex items-center justify-center">
+            <motion.div 
+               animate={{ rotate: 360 }}
+               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+               className="absolute w-32 h-32 border-2 border-dashed border-emerald-500/20 rounded-full"
+            />
+            <div className="relative bg-black/40 backdrop-blur-3xl border border-white/10 p-5 rounded-3xl shadow-2xl animate-float">
+               <Train size={48} className="text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
+            </div>
+          </div>
+
+          <div className="text-center space-y-3">
+            <h2 className="text-3xl font-black text-white tracking-tight flex items-center justify-center gap-2">
+              <InfinityIcon className="text-emerald-500 animate-pulse" size={24} />
+              BOARDING METRO
+            </h2>
+            <p className="text-emerald-400/80 font-medium tracking-wide text-sm bg-emerald-500/10 py-1 px-4 rounded-full border border-emerald-500/20 inline-block">
+              Mapping @{username}'s Journey
+            </p>
+          </div>
+
+          <div className="flex gap-4 opacity-40">
+            <Rocket className="animate-float" style={{ animationDelay: '0.2s' }} size={20} />
+            <Brain className="animate-float" style={{ animationDelay: '0.4s' }} size={20} />
+            <Shield className="animate-float" style={{ animationDelay: '0.6s' }} size={20} />
+          </div>
+
+          <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden border border-white/5">
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="w-1/2 h-full bg-gradient-to-r from-transparent via-emerald-400 to-transparent"
+            />
+          </div>
         </div>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8 }}>Boarding the Metro…</h2>
-        <p style={{ color: '#475569', margin: 0 }}>Mapping developer journey for <span style={{ color: '#00e5a0' }}>@{username}</span></p>
       </div>
     );
   }
@@ -199,22 +223,38 @@ export function Subway() {
     );
   }
 
-  const EnvButton = ({ type, icon: Icon, label }: { type: VisualEnvironment; icon: any; label: string }) => (
-    <button
-      onClick={() => setEnvironment(type)}
-      title={label}
-      style={{
-        width: 32, height: 32, borderRadius: 8,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: environment === type ? 'rgba(0,229,160,0.2)' : 'transparent',
-        border: environment === type ? '1px solid rgba(0,229,160,0.4)' : '1px solid transparent',
-        color: environment === type ? '#00e5a0' : '#475569',
-        cursor: 'pointer', transition: 'all 0.2s',
-      }}
-    >
-      <Icon size={16} />
-    </button>
-  );
+  const EnvButton = ({ type, icon: Icon, label }: { type: VisualEnvironment; icon: any; label: string }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    return (
+      <div className="relative flex items-center" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <button
+          onClick={() => setEnvironment(type)}
+          style={{
+            width: 32, height: 32, borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: environment === type ? 'rgba(0,229,160,0.2)' : 'transparent',
+            border: environment === type ? '1px solid rgba(0,229,160,0.4)' : '1px solid transparent',
+            color: environment === type ? '#00e5a0' : '#475569',
+            cursor: 'pointer', transition: 'all 0.2s',
+          }}
+        >
+          <Icon size={16} />
+        </button>
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 10 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="absolute left-full ml-2 bg-black/80 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded-md whitespace-nowrap z-50 pointer-events-none"
+            >
+              {label}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
 
   /* ─── Main ─── */
   return (
