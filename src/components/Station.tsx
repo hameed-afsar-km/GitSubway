@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import { MetroStationData } from '../types';
 
@@ -12,10 +11,10 @@ interface StationProps {
 
 // Size-scaled metro station — Origami Crystal Outpost
 export function Station({ data, onClick, isActive }: StationProps) {
-  const [hovered, setHovered] = useState(false);
+  const groupRef = useRef<THREE.Group>(null);
 
   const s = data.size;           
-  const active = isActive || hovered;
+  const active = isActive;
 
   // Outpost scales
   const baseSize = 5 + s * 2.2;
@@ -24,17 +23,9 @@ export function Station({ data, onClick, isActive }: StationProps) {
 
   return (
     <group
+      ref={groupRef}
       position={data.position}
       onClick={(e) => { e.stopPropagation(); onClick(data); }}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setHovered(false);
-        document.body.style.cursor = 'auto';
-      }}
     >
       {/* ── Reflective Obsidian Base ── */}
       <mesh position={[0, 0.1, 0]}>
@@ -47,7 +38,7 @@ export function Station({ data, onClick, isActive }: StationProps) {
         {/* Back Fold */}
         <mesh position={[0, height / 2, baseSize / 2 - 0.2]} rotation={[0.2, 0, 0]}>
           <boxGeometry args={[baseSize * 0.9, height, 0.1]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.2} metalness={0.5} />
+          <meshStandardMaterial color="#f8fafc" roughness={active ? 0 : 0.2} metalness={active ? 0.8 : 0.5} />
         </mesh>
         
         {/* Side Folds (Angled) */}
@@ -58,14 +49,14 @@ export function Station({ data, onClick, isActive }: StationProps) {
             rotation={[0, side * 0.4, -x * 0.1]}
           >
             <boxGeometry args={[0.1, height * 0.8, baseSize * 0.7]} />
-            <meshStandardMaterial color="#f8fafc" roughness={0.2} />
+            <meshStandardMaterial color="#f8fafc" roughness={active ? 0 : 0.2} />
           </mesh>
         ))}
 
         {/* Floating Top Canopy */}
         <mesh position={[0, height, 0]} rotation={[0.1, 0.1, 0]}>
           <boxGeometry args={[baseSize, 0.08, baseSize]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.1} />
+          <meshStandardMaterial color="#ffffff" roughness={0.1} emissive="#fff" emissiveIntensity={active ? 0.2 : 0} />
         </mesh>
       </group>
 
@@ -76,7 +67,7 @@ export function Station({ data, onClick, isActive }: StationProps) {
           <meshStandardMaterial 
             color={col} 
             emissive={col} 
-            emissiveIntensity={active ? 8 : 1} 
+            emissiveIntensity={active ? 15 : 2} 
             transparent 
             opacity={0.9} 
           />
@@ -104,36 +95,44 @@ export function Station({ data, onClick, isActive }: StationProps) {
         </group>
       ))}
 
-      {/* ── Station HUD (Minimalist) ── */}
-      <group position={[0, height + 1.5, 0]}>
+      {/* ── Station Title HUD (Billboard for maximum visibility) ── */}
+      <Billboard position={[0, height + 2.2, 0]}>
+        {/* High-visibility background plate */}
+        <mesh position={[0, 0, -0.1]}>
+          <planeGeometry args={[Math.max(4, baseSize * 0.7), 1.2]} />
+          <meshBasicMaterial color="#000000" transparent opacity={0.7} />
+        </mesh>
+        
         <Text
-          fontSize={0.7}
+          fontSize={0.65}
           color="#ffffff"
           fontWeight="900"
           anchorX="center"
+          anchorY="middle"
         >
           {data.repo.name.toUpperCase()}
         </Text>
         <Text
-          position={[0, -0.45, 0]}
-          fontSize={0.25}
+          position={[0, -0.4, 0]}
+          fontSize={0.22}
           color={col}
           fontWeight="bold"
           anchorX="center"
-          letterSpacing={0.2}
+          anchorY="middle"
+          letterSpacing={0.15}
         >
           {`${data.repo.language || 'PROJECT'} OUTPOST`}
         </Text>
-      </group>
+      </Billboard>
 
       {/* ── Energy Field (Atmospheric Lighting) ── */}
       {active && (
         <pointLight
           position={[0, height / 2, 0]}
           color={col}
-          intensity={12}
-          distance={18}
-          decay={1.5}
+          intensity={15}
+          distance={20}
+          decay={1.2}
         />
       )}
     </group>

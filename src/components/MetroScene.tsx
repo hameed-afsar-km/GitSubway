@@ -321,7 +321,8 @@ export function MetroScene({ stations, activeStation, onStationClick }: MetroSce
           dampingFactor={0.08}
           maxDistance={130}
           minDistance={3}
-          maxPolarAngle={Math.PI / 2.05}
+          maxPolarAngle={Math.PI / 1.8}
+          enablePan={true}
           makeDefault
         />
       </Canvas>

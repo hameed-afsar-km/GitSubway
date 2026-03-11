@@ -30,8 +30,14 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
   const [error, setError] = useState<string | null>(null);
   const [opponent, setOpponent] = useState<BattleStats | null>(null);
   const [showStats, setShowStats] = useState(false);
+  const [isStatsExpanded, setIsStatsExpanded] = useState(true);
 
   const currentStats = useMemo(() => calculateStats(currentUser, currentRepos), [currentUser, currentRepos]);
+
+  const winner = useMemo(() => {
+    if (!opponent) return null;
+    return currentStats.score > opponent.metrics.score ? 'current' : 'opponent';
+  }, [opponent, currentStats]);
 
   const handleSearch = async () => {
     if (!opponentName.trim()) return;
@@ -39,6 +45,7 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
     setError(null);
     setOpponent(null);
     setShowStats(false);
+    setIsStatsExpanded(true);
 
     try {
       const [user, repos] = await Promise.all([
@@ -79,23 +86,25 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
             borderRadius: 24, padding: 32, position: 'relative',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
           }}>
-            <button
-              onClick={onClose}
-              style={{
-                position: 'absolute', top: 20, right: 20,
-                background: 'rgba(255, 255, 255, 0.05)', border: 'none',
-                color: '#94a3b8', cursor: 'pointer', padding: 8, borderRadius: '50%'
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            <div style={{ textAlign: 'center', marginBottom: 40 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 8 }}>
-                <Swords size={32} color="#ef4444" />
-                <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>Subway Battle</h1>
-              </div>
-              <p style={{ color: '#94a3b8' }}>Compare your Git legacy with other developers</p>
+            {/* Header / Actions */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+               <div style={{ visibility: 'hidden', width: 40 }} /> {/* Spacer */}
+               <div style={{ textAlign: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 8 }}>
+                    <Swords size={32} color="#ef4444" />
+                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>Subway Battle</h1>
+                  </div>
+                  <p style={{ color: '#94a3b8', margin: 0 }}>Compare your Git legacy with other developers</p>
+                </div>
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)', border: 'none',
+                    color: '#94a3b8', cursor: 'pointer', padding: 8, borderRadius: '50%'
+                  }}
+                >
+                  <X size={20} />
+                </button>
             </div>
 
             {!opponent && (
@@ -135,7 +144,12 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
               <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
                 {/* Visual Map (Radar) */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 60, flexWrap: 'wrap' }}>
-                  <PlayerMiniCard user={currentUser} stats={currentStats} color="#00e5a0" />
+                  <PlayerMiniCard 
+                    user={currentUser} 
+                    stats={currentStats} 
+                    color="#00e5a0" 
+                    isWinner={winner === 'current'} 
+                  />
                   
                   <div style={{ position: 'relative', width: 280, height: 280 }}>
                     <RadarChart 
@@ -152,25 +166,47 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
                     </div>
                   </div>
 
-                  <PlayerMiniCard user={opponent.user} stats={opponent.metrics} color="#ef4444" />
+                  <PlayerMiniCard 
+                    user={opponent.user} 
+                    stats={opponent.metrics} 
+                    color="#ef4444" 
+                    isWinner={winner === 'opponent'} 
+                  />
+                </div>
+
+                {/* Show Details toggle */}
+                <div style={{ textAlign: 'center' }}>
+                  <button
+                    onClick={() => setIsStatsExpanded(!isStatsExpanded)}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#f1f5f9', padding: '6px 16px', borderRadius: 100, cursor: 'pointer',
+                      fontSize: '0.8rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8
+                    }}
+                  >
+                    {isStatsExpanded ? 'Collapse Stats' : 'Expand Detailed Stats'}
+                  </button>
                 </div>
 
                 {/* Quantitative Stats */}
                 <AnimatePresence>
-                  {showStats && (
+                  {showStats && isStatsExpanded && (
                     <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      style={{ 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div style={{ 
                         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20,
                         background: 'rgba(2, 6, 23, 0.4)', padding: 24, borderRadius: 20, border: '1px solid rgba(255,255,255,0.05)'
-                      }}
-                    >
-                      <StatRow label="Power Score" val1={currentStats.score} val2={opponent.metrics.score} icon={<Trophy size={16} />} />
-                      <StatRow label="GitHub Stars" val1={currentStats.stars} val2={opponent.metrics.stars} icon={<Star size={16} />} />
-                      <StatRow label="Base Stations" val1={currentStats.reposCount} val2={opponent.metrics.reposCount} icon={<Code size={16} />} />
-                      <StatRow label="Developer Network" val1={currentStats.followers} val2={opponent.metrics.followers} icon={<Users size={16} />} />
-                      <StatRow label="Years in Subway" val1={currentStats.yearsActive} val2={opponent.metrics.yearsActive} icon={<Calendar size={16} />} />
+                      }}>
+                        <StatRow label="Power Score" val1={currentStats.score} val2={opponent.metrics.score} icon={<Trophy size={16} />} />
+                        <StatRow label="GitHub Stars" val1={currentStats.stars} val2={opponent.metrics.stars} icon={<Star size={16} />} />
+                        <StatRow label="Base Stations" val1={currentStats.reposCount} val2={opponent.metrics.reposCount} icon={<Code size={16} />} />
+                        <StatRow label="Developer Network" val1={currentStats.followers} val2={opponent.metrics.followers} icon={<Users size={16} />} />
+                        <StatRow label="Years in Subway" val1={currentStats.yearsActive} val2={opponent.metrics.yearsActive} icon={<Calendar size={16} />} />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -192,24 +228,53 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
   );
 }
 
-function PlayerMiniCard({ user, stats, color }: { user: UserProfile; stats: any; color: string }) {
+function PlayerMiniCard({ user, stats, color, isWinner }: { user: UserProfile; stats: any; color: string, isWinner: boolean }) {
   return (
     <div style={{ textAlign: 'center', width: 140 }}>
       <div style={{ position: 'relative', marginBottom: 16 }}>
-        <img 
+        {isWinner && (
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: 'spring', delay: 2.5 }}
+            style={{ position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}
+          >
+            <Trophy size={32} color="#fbbf24" fill="#fbbf24" style={{ filter: 'drop-shadow(0 0 10px rgba(251, 191, 36, 0.5))' }} />
+          </motion.div>
+        )}
+        <motion.img 
+          initial={false}
+          animate={isWinner ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ repeat: isWinner ? Infinity : 0, duration: 2 }}
           src={user.avatar_url} 
           alt={user.login} 
-          style={{ width: 100, height: 100, borderRadius: '50%', border: `4px solid ${color}`, boxShadow: `0 0 20px ${color}33` }} 
+          style={{ 
+            width: 100, height: 100, borderRadius: '50%', 
+            border: `4px solid ${isWinner ? '#fbbf24' : color}`, 
+            boxShadow: isWinner ? `0 0 30px #fbbf2466` : `0 0 20px ${color}33`,
+            transition: 'border 0.3s ease'
+          }} 
         />
         <div style={{ 
-          position: 'absolute', bottom: 0, right: 10, background: color, 
-          borderRadius: 100, padding: '4px 10px', fontSize: '0.7rem', fontWeight: 'bold', color: '#fff' 
+          position: 'absolute', bottom: 0, right: 10, background: isWinner ? '#fbbf24' : color, 
+          borderRadius: 100, padding: '4px 10px', fontSize: '0.7rem', fontWeight: 'bold', color: isWinner ? '#000' : '#fff',
+          boxShadow: isWinner ? '0 0 10px #fbbf24' : 'none'
         }}>
           LVL {Math.floor(stats.score / 100) + 1}
         </div>
       </div>
       <h3 style={{ margin: 0, color: '#f1f5f9', fontSize: '1rem', fontWeight: 800 }}>{user.name || user.login}</h3>
       <p style={{ margin: 0, color: '#64748b', fontSize: '0.8rem' }}>@{user.login}</p>
+      {isWinner && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.5 }}
+          style={{ color: '#fbbf24', fontSize: '0.75rem', fontWeight: 700, marginTop: 4, textTransform: 'uppercase' }}
+        >
+          🏆 Winner
+        </motion.div>
+      )}
     </div>
   );
 }
