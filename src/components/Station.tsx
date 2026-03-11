@@ -10,33 +10,19 @@ interface StationProps {
   isActive: boolean;
 }
 
-// Size-scaled metro station — platform + canopy + sign + columns
+// Size-scaled metro station — Holographic Vortex Hub
 export function Station({ data, onClick, isActive }: StationProps) {
-  const groupRef = useRef<THREE.Group>(null);
-  const signRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
-  const s = data.size;           // 0.6 → 3.0 (star ratio)
+  const s = data.size;           
   const active = isActive || hovered;
 
-  // Platform scale with star ratio
-  const platW = 2.8 + s * 1.5;      // Extended for bullet train feel
-  const platD = 1.6 + s * 0.7;      
-  const platH = 0.25;
-  const poleH = 2.4 + s * 0.3;      // Slightly taller roof
-
+  // Terminal scales
+  const platRadius = 2.4 + s * 1.2;
+  const platH = 0.22;
+  const haloRadius = platRadius + 1.2;
+  const beamH = 4.5 + s * 0.5;
   const col = data.color;
-
-  useFrame((state) => {
-    if (signRef.current && active) {
-       // Gentle pulsing glow to the sign
-       const mat = signRef.current.material as THREE.MeshStandardMaterial;
-       mat.emissiveIntensity = 0.6 + Math.sin(state.clock.elapsedTime * 4) * 0.3;
-    } else if (signRef.current) {
-       const mat = signRef.current.material as THREE.MeshStandardMaterial;
-       mat.emissiveIntensity = 0.1;
-    }
-  });
 
   return (
     <group
@@ -52,158 +38,99 @@ export function Station({ data, onClick, isActive }: StationProps) {
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* ── Seamless White Concrete Platform ── */}
-      <mesh position={[0, platH / 2 - 0.2, 0]}>
-        <boxGeometry args={[platW, platH + 0.4, platD]} />
+      {/* ── Polished Obsidian Disk Platform ── */}
+      <mesh position={[0, platH / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[platRadius, platRadius, platH, 32]} />
         <meshStandardMaterial
-          color={active ? '#ffffff' : '#e2e8f0'}
-          roughness={0.7}
-          metalness={0.1}
+          color={active ? '#0f172a' : '#020617'}
+          roughness={0.01}
+          metalness={1}
         />
       </mesh>
 
-      {/* ── Tactile Yellow Warning Paving ── */}
-      <mesh position={[0, platH + 0.015, -platD / 2 + 0.3]}>
-        <boxGeometry args={[platW, 0.02, 0.15]} />
-        <meshStandardMaterial color="#eab308" roughness={0.9} />
+      {/* ── Rotating Energy Rings ── */}
+      <mesh position={[0, platH + 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[platRadius - 0.2, 0.03, 16, 100]} />
+        <meshBasicMaterial color={active ? col : '#1e293b'} />
       </mesh>
-      <mesh position={[0, platH + 0.015, platD / 2 - 0.3]}>
-        <boxGeometry args={[platW, 0.02, 0.15]} />
-        <meshStandardMaterial color="#eab308" roughness={0.9} />
-      </mesh>
-
-      {/* ── Platform Edge Glass Safety Doors ── */}
-      <group position={[0, platH + 0.4, -platD / 2 + 0.05]}>
-        <mesh>
-          <boxGeometry args={[platW, 0.8, 0.05]} />
-          <meshStandardMaterial color="#e2e8f0" transparent opacity={0.3} roughness={0.1} metalness={0.8} />
-        </mesh>
-        {/* Metal top rail */}
-        <mesh position={[0, 0.4, 0]}>
-          <boxGeometry args={[platW, 0.05, 0.08]} />
-          <meshStandardMaterial color="#94a3b8" metalness={0.6} />
-        </mesh>
-        {/* Language coded accent line on rail */}
-        <mesh position={[0, 0.42, 0]}>
-           <boxGeometry args={[platW, 0.02, 0.04]} />
-           <meshBasicMaterial color={col} />
-        </mesh>
-      </group>
-
-      <group position={[0, platH + 0.4, platD / 2 - 0.05]}>
-        <mesh>
-          <boxGeometry args={[platW, 0.8, 0.05]} />
-          <meshStandardMaterial color="#e2e8f0" transparent opacity={0.3} roughness={0.1} metalness={0.8} />
-        </mesh>
-        <mesh position={[0, 0.4, 0]}>
-          <boxGeometry args={[platW, 0.05, 0.08]} />
-          <meshStandardMaterial color="#94a3b8" metalness={0.6} />
-        </mesh>
-        <mesh position={[0, 0.42, 0]}>
-           <boxGeometry args={[platW, 0.02, 0.04]} />
-           <meshBasicMaterial color={col} />
-        </mesh>
-      </group>
-
-      {/* ── Sleek Central Architectural Columns ── */}
-      {[[-platW / 3, poleH / 2, 0], [platW / 3, poleH / 2, 0], [0, poleH / 2, 0]].map(
-        ([px, py, pz], ci) => (
-          <mesh key={ci} position={[px, py, pz]}>
-            <boxGeometry args={[0.3, poleH, 0.3]} />
-            <meshStandardMaterial color="#f8fafc" roughness={0.2} metalness={0.1} />
+      
+      {/* ── Twin Energy Stabilizers (Light Beams) ── */}
+      {[[-platRadius + 0.5, 0], [platRadius - 0.5, 0]].map(([px, pz], i) => (
+        <group key={i} position={[px, beamH / 2 + platH, pz]}>
+          <mesh>
+            <cylinderGeometry args={[0.08, 0.08, beamH, 8]} />
+            <meshStandardMaterial color="#ffffff" transparent opacity={0.2} metalness={1} />
           </mesh>
-        )
-      )}
-
-      {/* ── Sweeping Transit Roof ── */}
-      <group position={[0, poleH, 0]}>
-        {/* Main overhead canopy */}
-        <mesh position={[0, 0.1, 0]}>
-          <boxGeometry args={[platW + 0.8, 0.2, platD + 0.4]} />
-          <meshStandardMaterial color="#f1f5f9" roughness={0.3} metalness={0.1} />
-        </mesh>
-        {/* Accenting language stripe along roof edge */}
-        <mesh position={[0, 0.2, 0]}>
-          <boxGeometry args={[platW + 0.8, 0.05, platD + 0.45]} />
-          <meshBasicMaterial color={col} />
-        </mesh>
-        
-        {/* Recessed Lighting underneath Roof */}
-        <mesh position={[0, -0.01, 0]}>
-           <boxGeometry args={[platW, 0.02, platD - 0.4]} />
-           <meshBasicMaterial color={active ? '#ffffff' : '#e2e8f0'} />
-        </mesh>
-      </group>
-
-      {/* ── Overhead Suspended Info Displays ── */}
-      <group position={[0, poleH - 0.5, 0]}>
-        {/* Hanging bracket */}
-        <mesh position={[0, 0.25, 0]}>
-           <boxGeometry args={[0.05, 0.5, 0.05]} />
-           <meshStandardMaterial color="#475569" metalness={0.8} />
-        </mesh>
-        
-        {/* Dual-sided screen housing */}
-        <mesh>
-          <boxGeometry args={[Math.min(platW * 0.8, 3.5), 0.5, 0.15]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.4} metalness={0.5} />
-        </mesh>
-
-        {/* Screen Faces (Front and Back) */}
-        <mesh ref={signRef} position={[0, 0, 0.076]}>
-          <boxGeometry args={[Math.min(platW * 0.8, 3.5) - 0.1, 0.4, 0.01]} />
-          <meshStandardMaterial color="#000000" emissive={col} emissiveIntensity={0.1} />
-        </mesh>
-        <mesh position={[0, 0, -0.076]}>
-          <boxGeometry args={[Math.min(platW * 0.8, 3.5) - 0.1, 0.4, 0.01]} />
-          <meshStandardMaterial color="#000000" emissive={col} emissiveIntensity={0.1} />
-        </mesh>
-
-        {/* ── Station Name & Data ── */}
-        <Text
-          position={[0, 0.05, 0.085]}
-          fontSize={Math.max(0.18, Math.min(0.24, platW * 0.07))}
-          color={active ? '#ffffff' : '#e2e8f0'}
-          anchorX="center"
-          anchorY="middle"
-          maxWidth={Math.min(platW * 0.75, 3.2)}
-        >
-          {data.repo.name.toUpperCase()}
-        </Text>
-        
-        {/* ── Backwards facing text for other side ── */}
-        <Text
-          position={[0, 0.05, -0.085]}
-          rotation={[0, Math.PI, 0]}
-          fontSize={Math.max(0.18, Math.min(0.24, platW * 0.07))}
-          color={active ? '#ffffff' : '#e2e8f0'}
-          anchorX="center"
-          anchorY="middle"
-          maxWidth={Math.min(platW * 0.75, 3.2)}
-        >
-          {data.repo.name.toUpperCase()}
-        </Text>
-
-        <group position={[0, -0.12, 0.085]}>
-          <Text position={[-0.6, 0, 0]} fontSize={0.1} color="#94a3b8" anchorX="right">
-            {new Date(data.repo.created_at).getFullYear()}
-          </Text>
-          <Text position={[0, 0, 0]} fontSize={0.12} color={col} anchorX="center">
-            {data.repo.language || 'UNKNOWN'}
-          </Text>
-          <Text position={[0.6, 0, 0]} fontSize={0.1} color="#fbbf24" anchorX="left">
-            {`★ ${data.repo.stargazers_count}`}
-          </Text>
+          <mesh position={[0, 0, 0]}>
+            <cylinderGeometry args={[0.03, 0.03, beamH + 0.2, 8]} />
+            <meshBasicMaterial color={active ? col : '#475569'} />
+          </mesh>
         </group>
+      ))}
+
+      {/* ── Floating Hexagonal Energy Halo ── */}
+      <group position={[0, beamH + platH, 0]}>
+        <mesh rotation={[Math.PI / 2, 0, Math.PI / 6]}>
+          <cylinderGeometry args={[haloRadius, haloRadius, 0.1, 6, 1, true]} />
+          <meshStandardMaterial 
+            color="#ffffff" 
+            transparent 
+            opacity={active ? 0.4 : 0.2} 
+            metalness={1} 
+            roughness={0} 
+          />
+        </mesh>
+        {/* Glow Inner Edge */}
+        <mesh rotation={[Math.PI / 2, 0, Math.PI / 6]}>
+           <cylinderGeometry args={[haloRadius - 0.1, haloRadius - 0.1, 0.02, 6, 1, true]} />
+           <meshBasicMaterial color={active ? col : '#334155'} />
+        </mesh>
       </group>
 
-      {/* ── Ground Emissive Safety Guide ── */}
+      {/* ── Holographic Vertical Display ── */}
+      <group position={[0, 2.8, platRadius * 0.4]}>
+        {/* Glass Blade */}
+        <mesh>
+          <planeGeometry args={[2.5, 1.2]} />
+          <meshStandardMaterial 
+            color={col} 
+            transparent 
+            opacity={active ? 0.4 : 0.1} 
+            emissive={col} 
+            emissiveIntensity={active ? 1.5 : 0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        
+        <Text
+          position={[0, 0.2, 0.02]}
+          fontSize={0.28}
+          color="#ffffff"
+          fontWeight="900"
+          anchorX="center"
+        >
+          {data.repo.name.toUpperCase()}
+        </Text>
+        
+        <Text
+          position={[0, -0.2, 0.02]}
+          fontSize={0.16}
+          color="#ffffff"
+          fontWeight="bold"
+          anchorX="center"
+        >
+          {`${data.repo.language || 'PROJECT'} • ★${data.repo.stargazers_count}`}
+        </Text>
+      </group>
+
+      {/* ── Ground Light Pulse ── */}
       {active && (
         <pointLight
-          position={[0, 1.0, 0]}
+          position={[0, 2.5, 0]}
           color={col}
-          intensity={1.0}
-          distance={8}
+          intensity={3.5}
+          distance={20}
+          decay={1.2}
         />
       )}
     </group>

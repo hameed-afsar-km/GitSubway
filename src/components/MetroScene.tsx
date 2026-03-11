@@ -49,67 +49,172 @@ function Building({ pos, w, h, d, col }: {
   );
 }
 
+// ─── Procedural Grass Tuft ──────────────────────────────────────────────────
+function GrassTuft({ pos, scale }: { pos: [number, number, number]; scale: number }) {
+  return (
+    <group position={pos} scale={scale}>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} rotation={[0, (i * Math.PI) / 3, 0]} position={[0, 0.2, 0]}>
+          <planeGeometry args={[0.3, 0.45]} />
+          <meshStandardMaterial 
+            color="#4ade80" 
+            side={THREE.DoubleSide} 
+            transparent 
+            alphaTest={0.5}
+            roughness={1}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 // ─── Park + far-background objects (one combined component) ─────────────────
 function ParkAndCity({ stations }: { stations: MetroStationData[] }) {
-  // trackPts used for safe-zone checks
-  const trackPts = useMemo(
-    () => stations.map(s => s.trackPosition),
-    [stations]
-  );
-
-  // Returns true if (x, z) is > minDist from every track point
-  const isSafe = (x: number, z: number, minDist = 9): boolean => {
-    for (const [tx, , tz] of trackPts) {
+  // Returns true if (x, z) is > minDist from every exclusion point
+  const isSafe = (x: number, z: number, exclusionPts: [number, number, number][], minDist = 12): boolean => {
+    for (const [tx, , tz] of exclusionPts) {
       if ((x - tx) * (x - tx) + (z - tz) * (z - tz) < minDist * minDist) return false;
     }
     return true;
   };
 
-  // Generate up to 30 trees scattered across a wide band, safe from track
+  const exclusionPts = useMemo(() => {
+    return [
+        ...stations.map(s => s.trackPosition),
+        ...stations.map(s => s.position)
+    ];
+  }, [stations]);
+
+  // Generate trees scattered along the track segments
   const trees = useMemo(() => {
     const result: { pos: [number, number, number]; h: number; col: string }[] = [];
-    const foliageColors = ['#3a8c3f', '#2d7a30', '#4aaa50', '#2e6e30', '#5ab045'];
-    let seed = 0;
-    // Spread ±80 in X, ±15 to ±30 in Z (wide park borders)
-    for (let attempt = 0; result.length < 30 && attempt < 300; attempt++) {
-      const x = (seeded(seed++) - 0.5) * 160;
-      const zAbs = 12 + seeded(seed++) * 20;           // only place at |z| ≥ 12
-      const z = seeded(seed++) > 0.5 ? zAbs : -zAbs;
-      if (isSafe(x, z, 9)) {
-        result.push({
-          pos: [x, 0, z],
-          h: 4 + seeded(seed++) * 4,
-          col: foliageColors[Math.floor(seeded(seed++) * foliageColors.length)],
-        });
+    const foliageColors = ['#166534', '#14532d', '#15803d', '#166534', '#1e3a8a']; // Deeper metro colors
+    let seed = 42;
+    
+    if (stations.length === 0) return result;
+
+    for (let i = 0; i < stations.length - 1; i++) {
+        const start = stations[i].trackPosition;
+        const end = stations[i+1].trackPosition;
+        
+        for(let j = 0; j < 3; j++) {
+            const t = seeded(seed++) * 0.9 + 0.05;
+            const xBase = start[0] + (end[0] - start[0]) * t;
+            const zBase = start[2] + (end[2] - start[2]) * t;
+            
+            const side = seeded(seed++) > 0.5 ? 1 : -1;
+            const offset = 14 + seeded(seed++) * 25;
+            const dx = end[0] - start[0];
+            const dz = end[2] - start[2];
+            const px = -dz;
+            const pz = dx;
+            const len = Math.sqrt(px*px + pz*pz) || 1;
+            
+            const x = xBase + (px/len) * offset * side;
+            const z = zBase + (pz/len) * offset * side;
+
+            if (isSafe(x, z, exclusionPts, 12)) {
+                result.push({
+                    pos: [x, 0, z],
+                    h: 3 + seeded(seed++) * 5,
+                    col: foliageColors[Math.floor(seeded(seed++) * foliageColors.length)],
+                });
+            }
+        }
+    }
+    return result;
+  }, [stations, exclusionPts]);
+
+  // Generate Grass
+  const grass = useMemo(() => {
+    const result: { pos: [number, number, number]; scale: number }[] = [];
+    let seed = 999;
+    if (stations.length === 0) return result;
+
+    for (let i = 0; i < stations.length - 1; i++) {
+      const start = stations[i].trackPosition;
+      const end = stations[i+1].trackPosition;
+      for (let j = 0; j < 15; j++) {
+        const t = seeded(seed++) * 0.95 + 0.02;
+        const xBase = start[0] + (end[0] - start[0]) * t;
+        const zBase = start[2] + (end[2] - start[2]) * t;
+        const side = seeded(seed++) > 0.5 ? 1 : -1;
+        const offset = 4 + seeded(seed++) * 12;
+        const dx = end[0] - start[0];
+        const dz = end[2] - start[2];
+        const px = -dz;
+        const pz = dx;
+        const len = Math.sqrt(px*px + pz*pz) || 1;
+        const x = xBase + (px/len) * offset * side;
+        const z = zBase + (pz/len) * offset * side;
+
+        if (isSafe(x, z, exclusionPts, 3)) {
+          result.push({
+            pos: [x, 0, z],
+            scale: 0.8 + seeded(seed++) * 1.5
+          });
+        }
       }
     }
     return result;
-  }, [trackPts]);
+  }, [stations, exclusionPts]);
 
-  // 16 far-background buildings — pushed to |z| ≥ 50
+  // Background buildings along the track
   const buildings = useMemo(() => {
-    const wallCols = ['#c8c0b4', '#b8b0a6', '#d0c8bc', '#c4bcb0'];
-    return Array.from({ length: 16 }, (_, i) => ({
-      pos: [
-        -70 + i * 9.5 + seeded(i * 3) * 4,
-        0,
-        seeded(i * 7) > 0.5 ? -(52 + seeded(i * 11) * 12) : (52 + seeded(i * 11) * 12),
-      ] as [number, number, number],
-      w: 5 + seeded(i * 13) * 5,
-      h: 18 + seeded(i * 17) * 35,
-      d: 4 + seeded(i * 19) * 4,
-      col: wallCols[i % wallCols.length],
-    }));
-  }, []);
+    const wallCols = ['#1e293b', '#0f172a', '#334155', '#475569'];
+    const result: { pos: [number, number, number]; w: number; h: number; d: number; col: string }[] = [];
+    let seed = 1337;
+
+    if (stations.length === 0) return result;
+
+    for (let i = 0; i < stations.length - 1; i += 2) {
+        const start = stations[i].trackPosition;
+        const end = stations[i+1].trackPosition;
+        
+        for(let j = 0; j < 2; j++) {
+            const t = seeded(seed++) * 0.8 + 0.1;
+            const xBase = start[0] + (end[0] - start[0]) * t;
+            const zBase = start[2] + (end[2] - start[2]) * t;
+            
+            const side = seeded(seed++) > 0.5 ? 1 : -1;
+            const offset = 60 + seeded(seed++) * 40;
+            
+            const dx = end[0] - start[0];
+            const dz = end[2] - start[2];
+            const px = -dz;
+            const pz = dx;
+            const len = Math.sqrt(px*px + pz*pz) || 1;
+            
+            const x = xBase + (px/len) * offset * side;
+            const z = zBase + (pz/len) * offset * side;
+
+            if (isSafe(x, z, exclusionPts, 35)) { // Buildings need more room
+                result.push({
+                    pos: [x, 0, z],
+                    w: 8 + seeded(seed++) * 12,
+                    h: 20 + seeded(seed++) * 60,
+                    d: 8 + seeded(seed++) * 12,
+                    col: wallCols[Math.floor(seeded(seed++) * wallCols.length)],
+                });
+            }
+        }
+    }
+    return result;
+  }, [stations, exclusionPts]);
 
   return (
     <group>
-      {/* Wide grass ground */}
-      {/* Massive grass ground to cover all track bounds */}
+      {/* Massive grass ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
-        <planeGeometry args={[8000, 8000]} />
-        <meshStandardMaterial color="#5aaa44" roughness={0.95} />
+        <planeGeometry args={[10000, 10000]} />
+        <meshStandardMaterial color="#14532d" roughness={1} />
       </mesh>
+
+      {/* Grass Tufts */}
+      {grass.map((g, i) => (
+        <GrassTuft key={i} pos={g.pos} scale={g.scale} />
+      ))}
 
       {/* Trees */}
       {trees.map((t, i) => (
