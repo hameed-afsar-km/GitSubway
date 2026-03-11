@@ -24,11 +24,34 @@ export function Train({ activeStation, stations }: TrainProps) {
   // Window flicker refs
   const winRefs = useRef<(THREE.Mesh | null)[]>([]);
 
+  // First-load initialization flag
+  const initialized = useRef(false);
+
   // When active station changes → update target waypoint index
   useEffect(() => {
     if (!activeStation || stations.length === 0) return;
     const idx = stations.findIndex(s => s.repo.id === activeStation.repo.id);
     if (idx !== -1) targetSegIdx.current = idx;
+
+    // Immediately snap position to the first station upon world load without travel lerp
+    if (!initialized.current && stations.length > 0) {
+      const startTp = stations[0].trackPosition;
+      if (startTp) {
+        currentPos.current.set(startTp[0], 0.34, startTp[2]);
+        // Immediately face towards the second station to align with rails
+        if (stations.length > 1) {
+          const nextTp = stations[1].trackPosition;
+          if (nextTp) {
+            currentAngle.current = Math.atan2(nextTp[0] - startTp[0], nextTp[2] - startTp[2]);
+          }
+        }
+        if (trainRef.current) {
+          trainRef.current.position.copy(currentPos.current);
+          trainRef.current.rotation.y = currentAngle.current;
+        }
+      }
+      initialized.current = true;
+    }
   }, [activeStation, stations]);
 
   useFrame((state, delta) => {
