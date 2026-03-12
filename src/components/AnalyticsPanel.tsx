@@ -54,9 +54,9 @@ const chartDefaults = {
     },
     tooltip: {
       backgroundColor: 'rgba(10,14,40,0.95)',
-      titleColor: '#00e5a0',
+      titleColor: '#3b82f6',
       bodyColor: '#cbd5e1',
-      borderColor: 'rgba(0,229,160,0.2)',
+      borderColor: 'rgba(59,130,246,0.2)',
       borderWidth: 1,
     },
   },
@@ -123,7 +123,7 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
           backgroundColor: [
             'rgba(245, 158, 11, 0.8)',
             'rgba(59, 130, 246, 0.8)',
-            'rgba(0, 229, 160, 0.8)',
+            'rgba(6, 182, 212, 0.8)',
             'rgba(168, 85, 247, 0.8)',
           ],
           borderColor: 'rgba(10,14,40,0.8)',
@@ -234,7 +234,7 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
     return Math.min(100, Math.round(starScore + forkScore + issueScore + descScore));
   }, [repo]);
 
-  const healthColor = healthScore >= 70 ? '#00e5a0' : healthScore >= 40 ? '#f59e0b' : '#ef4444';
+  const healthColor = healthScore >= 70 ? '#3b82f6' : healthScore >= 40 ? '#f59e0b' : '#ef4444';
 
   return (
     <AnimatePresence>
@@ -254,14 +254,14 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
             overflowY: 'auto',
             zIndex: 50,
             background: 'linear-gradient(160deg, rgba(8,12,32,0.97) 0%, rgba(6,8,20,0.98) 100%)',
-            borderLeft: '1px solid rgba(0,229,160,0.15)',
-            boxShadow: '-20px 0 60px rgba(0,0,0,0.8), inset 1px 0 0 rgba(0,229,160,0.05)',
+            borderLeft: '1px solid rgba(59,130,246,0.15)',
+            boxShadow: '-20px 0 60px rgba(0,0,0,0.8), inset 1px 0 0 rgba(59,130,246,0.05)',
           }}
         >
           {/* Header */}
           <div style={{
-            background: 'linear-gradient(180deg, rgba(0,229,160,0.08) 0%, transparent 100%)',
-            borderBottom: '1px solid rgba(0,229,160,0.1)',
+            background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, transparent 100%)',
+            borderBottom: '1px solid rgba(59,130,246,0.1)',
             padding: '20px 24px 16px',
             position: 'sticky',
             top: 0,
@@ -434,9 +434,9 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
                     fontSize: '0.75rem',
                     fontWeight: 600,
                     transition: 'all 0.2s',
-                    background: activeTab === tab ? 'rgba(0,229,160,0.15)' : 'transparent',
-                    color: activeTab === tab ? '#00e5a0' : '#64748b',
-                    borderBottom: activeTab === tab ? '2px solid #00e5a0' : '2px solid transparent',
+                    background: activeTab === tab ? 'rgba(59,130,246,0.15)' : 'transparent',
+                    color: activeTab === tab ? '#3b82f6' : '#64748b',
+                    borderBottom: activeTab === tab ? '2px solid #3b82f6' : '2px solid transparent',
                   }}
                 >
                   {tab}
@@ -530,11 +530,11 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
                   {station.repo.topics.map(topic => (
                     <span key={topic} style={{
                       padding: '4px 10px',
-                      background: 'rgba(0,229,160,0.08)',
-                      border: '1px solid rgba(0,229,160,0.2)',
+                      background: 'rgba(59,130,246,0.08)',
+                      border: '1px solid rgba(59,130,246,0.2)',
                       borderRadius: 20,
                       fontSize: '0.72rem',
-                      color: '#00e5a0',
+                      color: '#3b82f6',
                       fontWeight: 500,
                     }}>
                       {topic}
@@ -555,23 +555,23 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
                 justifyContent: 'center',
                 gap: 8,
                 padding: '13px',
-                background: 'linear-gradient(135deg, rgba(0,229,160,0.15) 0%, rgba(59,130,246,0.1) 100%)',
-                border: '1px solid rgba(0,229,160,0.3)',
+                background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.1) 100%)',
+                border: '1px solid rgba(59,130,246,0.3)',
                 borderRadius: 12,
-                color: '#00e5a0',
+                color: '#3b82f6',
                 textDecoration: 'none',
                 fontWeight: 600,
                 fontSize: '0.88rem',
                 transition: 'all 0.2s',
-                boxShadow: '0 0 20px rgba(0,229,160,0.08)',
+                boxShadow: '0 0 20px rgba(59,130,246,0.08)',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = 'linear-gradient(135deg, rgba(0,229,160,0.25) 0%, rgba(59,130,246,0.15) 100%)';
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 30px rgba(0,229,160,0.18)';
+                (e.currentTarget as HTMLAnchorElement).style.background = 'linear-gradient(135deg, rgba(6,182,212,0.25) 0%, rgba(59,130,246,0.15) 100%)';
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 30px rgba(6,182,212,0.18)';
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = 'linear-gradient(135deg, rgba(0,229,160,0.15) 0%, rgba(59,130,246,0.1) 100%)';
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 20px rgba(0,229,160,0.08)';
+                (e.currentTarget as HTMLAnchorElement).style.background = 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(59,130,246,0.1) 100%)';
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 20px rgba(6,182,212,0.08)';
               }}
             >
               <ExternalLink size={16} />

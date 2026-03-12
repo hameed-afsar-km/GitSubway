@@ -8,7 +8,7 @@ import { AIInsightsPanel } from '../components/AIInsightsPanel';
 import { MiniMap } from '../components/MiniMap';
 import { fetchUserProfile, fetchUserRepositories } from '../services/githubApi';
 import { generateMetroSystem } from '../utils/visualMapping';
-import { UserProfile, Repository, MetroStationData, VisualEnvironment } from '../types';
+import { UserProfile, Repository, MetroStationData, TimeOfDay, Season } from '../types';
 import { BattleArena } from '../components/BattleArena';
 
 import AnoAI from '../components/ui/animated-shader-background';
@@ -28,7 +28,8 @@ export function Subway() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('All');
   const [isBattleMode, setIsBattleMode] = useState(false);
-  const [environment, setEnvironment] = useState<VisualEnvironment>('day');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
+  const [season, setSeason] = useState<Season>('summer');
 
   useEffect(() => {
     if (!username) return;
@@ -144,19 +145,19 @@ export function Subway() {
             <motion.div 
                animate={{ rotate: 360 }}
                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-               className="absolute w-32 h-32 border-2 border-dashed border-emerald-500/20 rounded-full"
+               className="absolute w-32 h-32 border-2 border-dashed border-blue-500/20 rounded-full"
             />
             <div className="relative bg-black/40 backdrop-blur-3xl border border-white/10 p-5 rounded-3xl shadow-2xl animate-float">
-               <Train size={48} className="text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
+               <Train size={48} className="text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
             </div>
           </div>
 
           <div className="text-center space-y-3">
             <h2 className="text-3xl font-black text-white tracking-tight flex items-center justify-center gap-2">
-              <InfinityIcon className="text-emerald-500 animate-pulse" size={24} />
+              <InfinityIcon className="text-blue-500 animate-pulse" size={24} />
               BOARDING METRO
             </h2>
-            <p className="text-emerald-400/80 font-medium tracking-wide text-sm bg-emerald-500/10 py-1 px-4 rounded-full border border-emerald-500/20 inline-block">
+            <p className="text-blue-400/80 font-medium tracking-wide text-sm bg-blue-500/10 py-1 px-4 rounded-full border border-blue-500/20 inline-block">
               Mapping @{username}'s Journey
             </p>
           </div>
@@ -172,7 +173,7 @@ export function Subway() {
               initial={{ x: '-100%' }}
               animate={{ x: '100%' }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="w-1/2 h-full bg-gradient-to-r from-transparent via-emerald-400 to-transparent"
+              className="w-1/2 h-full bg-gradient-to-r from-transparent via-blue-400 to-transparent"
             />
           </div>
         </div>
@@ -206,10 +207,10 @@ export function Subway() {
             onClick={() => navigate('/')}
             style={{
               padding: '10px 24px',
-              background: 'rgba(0,229,160,0.12)',
-              border: '1px solid rgba(0,229,160,0.3)',
+              background: 'rgba(59,130,246,0.12)',
+              border: '1px solid rgba(59,130,246,0.3)',
               borderRadius: 100,
-              color: '#00e5a0',
+              color: '#3b82f6',
               fontWeight: 600,
               cursor: 'pointer',
               fontSize: '0.9rem',
@@ -223,18 +224,53 @@ export function Subway() {
     );
   }
 
-  const EnvButton = ({ type, icon: Icon, label }: { type: VisualEnvironment; icon: any; label: string }) => {
+  const TimeButton = ({ type, icon: Icon, label }: { type: TimeOfDay; icon: any; label: string }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const active = timeOfDay === type;
     return (
       <div className="relative flex items-center" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
         <button
-          onClick={() => setEnvironment(type)}
+          onClick={() => setTimeOfDay(type)}
           style={{
             width: 32, height: 32, borderRadius: 8,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: environment === type ? 'rgba(0,229,160,0.2)' : 'transparent',
-            border: environment === type ? '1px solid rgba(0,229,160,0.4)' : '1px solid transparent',
-            color: environment === type ? '#00e5a0' : '#475569',
+            background: active ? 'rgba(59,130,246,0.2)' : 'transparent',
+            border: active ? '1px solid rgba(59,130,246,0.4)' : '1px solid transparent',
+            color: active ? '#3b82f6' : '#475569',
+            cursor: 'pointer', transition: 'all 0.2s',
+          }}
+        >
+          <Icon size={16} />
+        </button>
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 10 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="absolute left-full ml-2 bg-black/80 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded-md whitespace-nowrap z-50 pointer-events-none"
+            >
+              {label}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
+  const SeasonButton = ({ type, icon: Icon, label }: { type: Season; icon: any; label: string }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const active = season === type;
+    return (
+      <div className="relative flex items-center" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <button
+          onClick={() => setSeason(type)}
+          style={{
+            width: 32, height: 32, borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: active ? 'rgba(59,130,246,0.2)' : 'transparent',
+            border: active ? '1px solid rgba(59,130,246,0.4)' : '1px solid transparent',
+            color: active ? '#3b82f6' : '#475569',
             cursor: 'pointer', transition: 'all 0.2s',
           }}
         >
@@ -265,7 +301,8 @@ export function Subway() {
         <MetroScene
           stations={filteredStations}
           activeStation={activeStation}
-          environment={environment}
+          timeOfDay={timeOfDay}
+          season={season}
           onStationClick={handleStationClick}
         />
       </div>
@@ -273,20 +310,28 @@ export function Subway() {
       {/* ─── Environmental Dock (Left) ─── */}
       <div style={{
         position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
-        zIndex: 20, display: 'flex', flexDirection: 'column', gap: 8,
+        zIndex: 20, display: 'flex', flexDirection: 'column', gap: 12,
         background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: 100, padding: '10px 6px',
+        borderRadius: 24, padding: '12px 6px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
       }}>
-        <EnvButton type="day" icon={Sun} label="Day" />
-        <EnvButton type="night" icon={Moon} label="Night" />
+        {/* Time of Day Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <TimeButton type="day" icon={Sun} label="Day" />
+          <TimeButton type="night" icon={Moon} label="Night" />
+        </div>
+
         <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 6px' }} />
-        <EnvButton type="summer" icon={Mountain} label="Summer" />
-        <EnvButton type="autumn" icon={Leaf} label="Autumn" />
-        <EnvButton type="winter" icon={Snowflake} label="Winter" />
-        <EnvButton type="spring" icon={Flower} label="Spring" />
-        <EnvButton type="blossom" icon={Flower} label="Blossom" />
+
+        {/* Seasons Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <SeasonButton type="summer" icon={Mountain} label="Summer" />
+          <SeasonButton type="autumn" icon={Leaf} label="Autumn" />
+          <SeasonButton type="winter" icon={Snowflake} label="Winter" />
+          <SeasonButton type="spring" icon={Flower} label="Spring" />
+          <SeasonButton type="blossom" icon={Sparkles} label="Blossom" />
+        </div>
       </div>
 
       {/* ─── Top Nav ─── */}
@@ -307,8 +352,8 @@ export function Subway() {
             style={{
               width: 40, height: 40, borderRadius: '50%',
               background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(0,229,160,0.2)',
-              color: '#00e5a0', cursor: 'pointer',
+              border: '1px solid rgba(59,130,246,0.2)',
+              color: '#3b82f6', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s',
             }}
@@ -319,17 +364,17 @@ export function Subway() {
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
             background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(0,229,160,0.15)',
+            border: '1px solid rgba(59,130,246,0.15)',
             borderRadius: 12, padding: '8px 16px 8px 10px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
           }}>
-            <img src={user.avatar_url} alt={user.login} style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid rgba(0,229,160,0.3)' }} />
+            <img src={user.avatar_url} alt={user.login} style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid rgba(59,130,246,0.3)' }} />
             <div>
               <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.2 }}>
                 {user.name || user.login}
               </div>
               <div style={{ color: '#475569', fontSize: '0.7rem' }}>
-                <span style={{ color: '#00e5a0' }}>{stations.length}</span> stations on the line
+                <span style={{ color: '#3b82f6' }}>{stations.length}</span> stations on the line
               </div>
             </div>
           </div>
@@ -379,7 +424,7 @@ export function Subway() {
                 width: 140, fontFamily: 'Inter, sans-serif',
                 transition: 'all 0.2s',
               }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.3)'; e.target.style.width = '180px'; }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(59,130,246,0.3)'; e.target.style.width = '180px'; }}
               onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '140px'; }}
             />
           </div>
@@ -389,11 +434,11 @@ export function Subway() {
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '8px 16px',
-              background: 'rgba(0,229,160,0.1)', backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(0,229,160,0.3)',
-              borderRadius: 100, color: '#00e5a0',
+              background: 'rgba(59,130,246,0.1)', backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(59,130,246,0.3)',
+              borderRadius: 100, color: '#3b82f6',
               cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem',
-              boxShadow: '0 0 16px rgba(0,229,160,0.08)',
+              boxShadow: '0 0 16px rgba(59,130,246,0.08)',
               transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
             }}
           >
@@ -449,11 +494,11 @@ export function Subway() {
           style={{
             background: 'rgba(6,8,24,0.92)',
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(0,229,160,0.15)',
+            border: '1px solid rgba(59,130,246,0.15)',
             borderRadius: 100,
             padding: '6px 8px',
             display: 'flex', alignItems: 'center', gap: 4,
-            boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.05)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,130,246,0.05)',
           }}
         >
           <button
@@ -473,7 +518,7 @@ export function Subway() {
 
           <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
-              <MapPin size={10} color="#00e5a0" />
+              <MapPin size={10} color="#3b82f6" />
               <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                 Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
               </span>
