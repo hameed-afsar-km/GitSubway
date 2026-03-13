@@ -38,23 +38,23 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
         zIndex: 10,
         background: 'rgba(6,8,24,0.9)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(0,229,160,0.15)',
+        border: '1px solid rgba(59,130,246,0.15)',
         borderRadius: 16,
         padding: '12px 14px',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,160,0.04)',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,130,246,0.04)',
       }}
     >
       <div style={{
         display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8,
       }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00e5a0', boxShadow: '0 0 4px #00e5a0' }} />
+        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 4px #3b82f6' }} />
         <span style={{
           fontSize: '0.62rem', fontWeight: 700, color: '#475569',
           textTransform: 'uppercase', letterSpacing: '0.1em',
         }}>
           Network Map
         </span>
-        <span style={{ marginLeft: 'auto', fontSize: '0.62rem', color: '#00e5a0', fontWeight: 600 }}>
+        <span style={{ marginLeft: 'auto', fontSize: '0.62rem', color: '#3b82f6', fontWeight: 600 }}>
           {stations.length} stations
         </span>
       </div>
@@ -86,7 +86,7 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
               return `${x},${y}`;
             }).join(' ')}
             fill="none"
-            stroke="#00e5a0"
+            stroke="#3b82f6"
             strokeWidth="1.5"
             opacity="0.4"
           />
@@ -99,7 +99,7 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
               return `${x},${y}`;
             }).join(' ')}
             fill="none"
-            stroke="#00e5a0"
+            stroke="#3b82f6"
             strokeWidth="1"
             opacity="0.2"
           />

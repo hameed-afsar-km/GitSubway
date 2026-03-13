@@ -58,9 +58,9 @@ const chartDefaults = {
     },
     tooltip: {
       backgroundColor: 'rgba(10,14,40,0.95)',
-      titleColor: '#00e5a0',
+      titleColor: '#3b82f6',
       bodyColor: '#cbd5e1',
-      borderColor: 'rgba(0,229,160,0.2)',
+      borderColor: 'rgba(59,130,246,0.2)',
       borderWidth: 1,
     },
   },
@@ -146,9 +146,9 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
         {
           label: 'Repos Created',
           data: years.map(y => yearMap[y].count),
-          borderColor: '#00e5a0',
-          backgroundColor: 'rgba(0,229,160,0.12)',
-          pointBackgroundColor: '#00e5a0',
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.12)',
+          pointBackgroundColor: '#3b82f6',
           pointRadius: 4,
           fill: true,
           tension: 0.4,
@@ -247,9 +247,9 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
               width: '100%', maxHeight: '80vh',
               overflowY: 'auto', zIndex: 50,
               background: 'linear-gradient(160deg, rgba(6,8,24,0.98) 0%, rgba(4,6,16,0.99) 100%)',
-              borderTop: '1px solid rgba(0,229,160,0.2)',
+              borderTop: '1px solid rgba(59,130,246,0.2)',
               borderRight: 'none',
-              boxShadow: '0 -20px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(0,229,160,0.05)',
+              boxShadow: '0 -20px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(59,130,246,0.05)',
             }}
           >
             {/* Header */}
@@ -257,17 +257,17 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
               position: 'sticky', top: 0, zIndex: 10,
               background: 'rgba(6,8,24,0.97)',
               backdropFilter: 'blur(20px)',
-              borderBottom: '1px solid rgba(0,229,160,0.12)',
-              padding: '16px 24px 12px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    padding: 8, background: 'rgba(0,229,160,0.12)',
-                    borderRadius: 10, display: 'flex', border: '1px solid rgba(0,229,160,0.2)',
-                  }}>
-                    <Sparkles size={18} color="#00e5a0" />
-                  </div>
+            borderBottom: '1px solid rgba(59,130,246,0.12)',
+            padding: '16px 24px 12px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  padding: 8, background: 'rgba(59,130,246,0.12)',
+                  borderRadius: 10, display: 'flex', border: '1px solid rgba(59,130,246,0.2)',
+                }}>
+                  <Sparkles size={18} color="#3b82f6" />
+                </div>
                   <div>
                     <h2 style={{ color: '#f0f6ff', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
                       AI Developer Analysis
@@ -310,7 +310,7 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
                   { label: 'Followers', value: user?.followers.toLocaleString() || '0', icon: '👥' },
                 ].map(({ label, value, icon }) => (
                   <div key={label} style={{ textAlign: 'center' }}>
-                    <div style={{ color: '#00e5a0', fontWeight: 700, fontSize: '0.9rem' }}>{icon} {value}</div>
+                    <div style={{ color: '#3b82f6', fontWeight: 700, fontSize: '0.9rem' }}>{icon} {value}</div>
                     <div style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
                   </div>
                 ))}
@@ -329,8 +329,8 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
                   style={{
                     padding: '10px 18px', border: 'none', background: 'transparent',
                     cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-                    color: activeTab === tab ? '#00e5a0' : '#64748b',
-                    borderBottom: activeTab === tab ? '2px solid #00e5a0' : '2px solid transparent',
+                    color: activeTab === tab ? '#3b82f6' : '#64748b',
+                    borderBottom: activeTab === tab ? '2px solid #3b82f6' : '2px solid transparent',
                     transition: 'all 0.2s', marginBottom: -1,
                   }}
                 >
@@ -362,11 +362,11 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
                           }}>
                             <div style={{
                               position: 'absolute', inset: 0, borderRadius: '50%',
-                              border: '2px solid rgba(0,229,160,0.3)',
-                              borderTopColor: '#00e5a0',
+                              border: '2px solid rgba(59,130,246,0.3)',
+                              borderTopColor: '#3b82f6',
                               animation: 'spin 1s linear infinite',
                             }} />
-                            <Sparkles size={20} color="#00e5a0" />
+                            <Sparkles size={20} color="#3b82f6" />
                           </div>
                           <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>
                             Gemini is analyzing your developer profile…

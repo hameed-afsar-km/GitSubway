@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Line, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
-import { MetroStationData, VisualEnvironment } from '../types';
+import { MetroStationData, TimeOfDay, Season } from '../types';
 import { Station } from './Station';
 import { Train } from './Train';
 
@@ -10,7 +10,8 @@ interface MetroSceneProps {
   stations: MetroStationData[];
   activeStation: MetroStationData | null;
   onStationClick: (station: MetroStationData) => void;
-  environment: VisualEnvironment;
+  timeOfDay: TimeOfDay;
+  season: Season;
 }
 
 // ─── Simple seeded pseudo-random (no Math.random() in render) ───────────────
@@ -19,9 +20,9 @@ function seeded(n: number): number {
   return x - Math.floor(x);
 }
 
-// ─── Get foliage colors based on environment ───────────────────────────────
-function getFoliageColors(env: VisualEnvironment): string[] {
-  switch (env) {
+// ─── Get foliage colors based on season ────────────────────────────────────
+function getFoliageColors(season: Season): string[] {
+  switch (season) {
     case 'autumn':
       return ['#b45309', '#92400e', '#78350f', '#ea580c', '#c2410c'];
     case 'winter':
@@ -30,18 +31,16 @@ function getFoliageColors(env: VisualEnvironment): string[] {
       return ['#4ade80', '#22c55e', '#16a34a', '#86efac'];
     case 'blossom':
       return ['#fbcfe8', '#f9a8d4', '#f472b6', '#ec4899'];
-    case 'night':
-      return ['#064e3b', '#065f46', '#022c22', '#1e3a8a'];
-    default: // summer / day
+    default: // summer
       return ['#166534', '#14532d', '#15803d', '#166534', '#1e3a8a'];
   }
 }
 
-function getGroundColor(env: VisualEnvironment): string {
-  switch (env) {
+function getGroundColor(season: Season, timeOfDay: TimeOfDay): string {
+  if (timeOfDay === 'night') return '#020617';
+  switch (season) {
     case 'autumn': return '#78350f';
     case 'winter': return '#f8fafc';
-    case 'night': return '#020617';
     case 'blossom': return '#2d0620';
     default: return '#14532d';
   }
@@ -65,10 +64,9 @@ function Tree({ pos, h, col }: { pos: [number, number, number]; h: number; col: 
 }
 
 // ─── Simple building (far background only) ──────────────────────────────────
-function Building({ pos, w, h, d, col, env }: {
-  pos: [number, number, number]; w: number; h: number; d: number; col: string; env: VisualEnvironment;
+function Building({ pos, w, h, d, col, isNight }: {
+  pos: [number, number, number]; w: number; h: number; d: number; col: string; isNight: boolean;
 }) {
-  const isNight = env === 'night';
   return (
     <group position={[pos[0], h / 2 + pos[1], pos[2]]}>
       <mesh>
@@ -87,8 +85,8 @@ function Building({ pos, w, h, d, col, env }: {
 }
 
 // ─── Procedural Street Light ────────────────────────────────────────────────
-function StreetLight({ pos, env }: { pos: [number, number, number]; env: VisualEnvironment }) {
-  const isDark = ['night', 'autumn', 'winter'].includes(env);
+function StreetLight({ pos, timeOfDay, season }: { pos: [number, number, number]; timeOfDay: TimeOfDay; season: Season }) {
+  const isDark = timeOfDay === 'night' || ['autumn', 'winter'].includes(season);
   return (
     <group position={pos}>
       <mesh position={[0, 2.5, 0]}>
@@ -111,8 +109,8 @@ function StreetLight({ pos, env }: { pos: [number, number, number]; env: VisualE
 }
 
 // ─── Procedural Grass Tuft ──────────────────────────────────────────────────
-function GrassTuft({ pos, scale, env }: { pos: [number, number, number]; scale: number; env: VisualEnvironment }) {
-  const col = env === 'winter' ? '#e2e8f0' : env === 'autumn' ? '#b45309' : '#4ade80';
+function GrassTuft({ pos, scale, season }: { pos: [number, number, number]; scale: number; season: Season }) {
+  const col = season === 'winter' ? '#e2e8f0' : season === 'autumn' ? '#b45309' : '#4ade80';
   return (
     <group position={pos} scale={scale}>
       {[0, 1, 2].map((i) => (
@@ -132,7 +130,7 @@ function GrassTuft({ pos, scale, env }: { pos: [number, number, number]; scale: 
 }
 
 // ─── Park + far-background objects (one combined component) ─────────────────
-function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: VisualEnvironment }) {
+function ParkAndCity({ stations, season, timeOfDay }: { stations: MetroStationData[]; season: Season; timeOfDay: TimeOfDay }) {
   // Returns true if (x, z) is > minDist from every exclusion point
   const isSafe = (x: number, z: number, exclusionPts: [number, number, number][], minDist = 12): boolean => {
     for (const [tx, , tz] of exclusionPts) {
@@ -183,7 +181,7 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
   // Generate trees scattered along the track segments
   const trees = useMemo(() => {
     const result: { pos: [number, number, number]; h: number; col: string }[] = [];
-    const foliageColors = getFoliageColors(env);
+    const foliageColors = getFoliageColors(season);
     let seed = 42;
     
     if (stations.length === 0) return result;
@@ -218,7 +216,7 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
         }
     }
     return result;
-  }, [stations, exclusionPts, env]);
+  }, [stations, exclusionPts, season]);
 
   // Generate Grass
   const grass = useMemo(() => {
@@ -254,9 +252,9 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
     return result;
   }, [stations, exclusionPts]);
 
-  // Background buildings along the track
   const buildings = useMemo(() => {
-    const wallCols = env === 'night' ? ['#020617', '#1e293b'] : ['#1e293b', '#0f172a', '#334155', '#475569'];
+    const isDark = timeOfDay === 'night';
+    const wallCols = isDark ? ['#020617', '#1e293b'] : ['#1e293b', '#0f172a', '#334155', '#475569'];
     const result: { pos: [number, number, number]; w: number; h: number; d: number; col: string }[] = [];
     let seed = 1337;
 
@@ -295,24 +293,24 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
         }
     }
     return result;
-  }, [stations, exclusionPts, env]);
+  }, [stations, exclusionPts, timeOfDay]);
 
   return (
     <group>
       {/* Massive grass ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
         <planeGeometry args={[10000, 10000]} />
-        <meshStandardMaterial color={getGroundColor(env)} roughness={1} />
+        <meshStandardMaterial color={getGroundColor(season, timeOfDay)} roughness={1} />
       </mesh>
 
       {/* Grass Tufts */}
       {grass.map((g, i) => (
-        <GrassTuft key={i} pos={g.pos} scale={g.scale} env={env} />
+        <GrassTuft key={i} pos={g.pos} scale={g.scale} season={season} />
       ))}
 
       {/* Street Lights */}
       {streetLights.map((sl, i) => (
-        <StreetLight key={i} pos={sl.pos} env={env} />
+        <StreetLight key={i} pos={sl.pos} timeOfDay={timeOfDay} season={season} />
       ))}
 
       {/* Trees */}
@@ -322,7 +320,7 @@ function ParkAndCity({ stations, env }: { stations: MetroStationData[]; env: Vis
 
       {/* Far background buildings */}
       {buildings.map((b, i) => (
-        <Building key={i} pos={b.pos} w={b.w} h={b.h} d={b.d} col={b.col} env={env} />
+        <Building key={i} pos={b.pos} w={b.w} h={b.h} d={b.d} col={b.col} isNight={timeOfDay === 'night'} />
       ))}
     </group>
   );
@@ -368,10 +366,10 @@ function NightLighting() {
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
-export function MetroScene({ stations, activeStation, onStationClick, environment }: MetroSceneProps) {
-  const isNight = environment === 'night';
-  const bgColor = isNight ? '#020617' : environment === 'winter' ? '#f1f5f9' : environment === 'autumn' ? '#fed7aa' : '#7ec0ee';
-  const fogColor = isNight ? '#000000' : environment === 'winter' ? '#cbd5e1' : environment === 'autumn' ? '#ffedd5' : '#87d0ff';
+export function MetroScene({ stations, activeStation, onStationClick, timeOfDay, season }: MetroSceneProps) {
+  const isNight = timeOfDay === 'night';
+  const bgColor = isNight ? '#020617' : season === 'winter' ? '#f1f5f9' : season === 'autumn' ? '#fed7aa' : '#7ec0ee';
+  const fogColor = isNight ? '#000000' : season === 'winter' ? '#cbd5e1' : season === 'autumn' ? '#ffedd5' : '#87d0ff';
 
   return (
     <div className="w-full h-full" style={{ background: bgColor }}>
@@ -392,17 +390,25 @@ export function MetroScene({ stations, activeStation, onStationClick, environmen
 
         {isNight ? <NightLighting /> : <DayLighting />}
         
-        <ParkAndCity stations={stations} env={environment} />
+        <ParkAndCity stations={stations} season={season} timeOfDay={timeOfDay} />
         <MetroTrack stations={stations} />
 
-        {stations.map(station => (
-          <Station
-            key={station.repo.id}
-            data={station}
-            onClick={onStationClick}
-            isActive={activeStation?.repo.id === station.repo.id}
-          />
-        ))}
+        {stations.map(station => {
+          // Calculate rotation to face the track
+          const dx = station.trackPosition[0] - station.position[0];
+          const dz = station.trackPosition[2] - station.position[2];
+          const angle = Math.atan2(dx, dz) + Math.PI;
+          
+          return (
+            <Station
+              key={station.repo.id}
+              data={station}
+              onClick={onStationClick}
+              isActive={activeStation?.repo.id === station.repo.id}
+              rotation={[0, angle, 0]}
+            />
+          );
+        })}
 
         <Train activeStation={activeStation} stations={stations} />
 

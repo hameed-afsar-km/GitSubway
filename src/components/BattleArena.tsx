@@ -144,20 +144,20 @@ export function BattleArena({ currentUser, currentRepos, isOpen, onClose }: Batt
               <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
                 {/* Visual Map (Radar) */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 60, flexWrap: 'wrap' }}>
-                  <PlayerMiniCard 
-                    user={currentUser} 
-                    stats={currentStats} 
-                    color="#00e5a0" 
-                    isWinner={winner === 'current'} 
-                  />
-                  
-                  <div style={{ position: 'relative', width: 280, height: 280 }}>
-                    <RadarChart 
-                      stats1={currentStats} 
-                      stats2={opponent.metrics} 
-                      color1="#00e5a0" 
-                      color2="#ef4444" 
+                    <PlayerMiniCard 
+                      user={currentUser} 
+                      stats={currentStats} 
+                      color="#3b82f6" 
+                      isWinner={winner === 'current'} 
                     />
+                    
+                    <div style={{ position: 'relative', width: 280, height: 280 }}>
+                      <RadarChart 
+                        stats1={currentStats} 
+                        stats2={opponent.metrics} 
+                        color1="#3b82f6" 
+                        color2="#ef4444" 
+                      />
                     <div style={{ 
                       position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
                       background: 'rgba(0,0,0,0.5)', padding: '12px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)'
@@ -288,7 +288,7 @@ function StatRow({ label, val1, val2, icon }: { label: string; val1: number; val
         {label}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ color: winner === 1 ? '#00e5a0' : '#f1f5f9', fontWeight: winner === 1 ? 800 : 500, fontSize: '1.2rem' }}>{val1}</span>
+        <span style={{ color: winner === 1 ? '#3b82f6' : '#f1f5f9', fontWeight: winner === 1 ? 800 : 500, fontSize: '1.2rem' }}>{val1}</span>
         <div style={{ width: 40, height: 2, background: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
         <span style={{ color: winner === 2 ? '#ef4444' : '#f1f5f9', fontWeight: winner === 2 ? 800 : 500, fontSize: '1.2rem' }}>{val2}</span>
       </div>
