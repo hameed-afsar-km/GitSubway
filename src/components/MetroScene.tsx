@@ -330,9 +330,16 @@ function ParkAndCity({ stations, season, timeOfDay }: { stations: MetroStationDa
 function MetroTrack({ stations }: { stations: MetroStationData[] }) {
   if (stations.length < 2) return null;
 
-  // Draw track through trackPosition points (not platform positions)
-  const pts = stations.map(s => new THREE.Vector3(s.trackPosition[0], 0.05, s.trackPosition[2]));
-  const pts2 = stations.map(s => new THREE.Vector3(s.trackPosition[0] + 0.6, 0.05, s.trackPosition[2] + 0.6));
+  // Draw track through trackPosition points
+  const pts = stations.map(s => {
+    const tp = s.trackPosition || [0, 0, 0];
+    return new THREE.Vector3(tp[0], 0.05, tp[2]);
+  });
+  
+  const pts2 = stations.map(s => {
+    const tp = s.trackPosition || [0, 0, 0];
+    return new THREE.Vector3(tp[0] + 0.3, 0.05, tp[2] + 0.3);
+  });
 
   return (
     <>
@@ -372,54 +379,76 @@ export function MetroScene({ stations, activeStation, onStationClick, timeOfDay,
   const fogColor = isNight ? '#000000' : season === 'winter' ? '#cbd5e1' : season === 'autumn' ? '#ffedd5' : '#87d0ff';
 
   return (
-    <div className="w-full h-full" style={{ background: bgColor }}>
+    <div className="w-full h-full relative" style={{ background: bgColor, width: '100%', height: '100vw', minHeight: '100vh' }}>
       <Canvas
-        camera={{ position: [0, 20, 35], fov: 50, near: 0.1, far: 800 }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        camera={{ position: [0, 20, 35], fov: 50, near: 0.1, far: 2000 }}
+        gl={{ antialias: true }}
         dpr={[1, 2]}
       >
         <color attach="background" args={[bgColor]} />
-        <fog attach="fog" args={[fogColor, 50, 500]} />
-
-        {!isNight && (
-          <>
-            <Cloud position={[-50, 36, -80]} speed={0.1} opacity={0.65} segments={8} />
-            <Cloud position={[40, 40, -90]} speed={0.08} opacity={0.6} segments={7} />
-          </>
-        )}
-
+        
+        {/* Lights and Ground outside Suspense for debug */}
         {isNight ? <NightLighting /> : <DayLighting />}
         
-        <ParkAndCity stations={stations} season={season} timeOfDay={timeOfDay} />
-        <MetroTrack stations={stations} />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+          <planeGeometry args={[10000, 10000]} />
+          <meshStandardMaterial color={getGroundColor(season, timeOfDay)} roughness={1} />
+        </mesh>
 
-        {stations.map(station => {
-          // Calculate rotation to face the track
-          const dx = station.trackPosition[0] - station.position[0];
-          const dz = station.trackPosition[2] - station.position[2];
-          const angle = Math.atan2(dx, dz) + Math.PI;
+        {/* Debug sphere at origin */}
+        <mesh position={[0, 5, 0]}>
+          <sphereGeometry args={[1]} />
+          <meshStandardMaterial color="red" />
+        </mesh>
+
+        <React.Suspense fallback={
+          <mesh position={[0, 10, 0]}>
+            <boxGeometry args={[2, 2, 2]} />
+            <meshStandardMaterial color="yellow" />
+          </mesh>
+        }>
+          {!isNight && (
+            <group>
+              <Cloud position={[-50, 45, -120]} speed={0.2} opacity={0.4} segments={10} />
+              <Cloud position={[60, 50, -150]} speed={0.15} opacity={0.3} segments={12} />
+            </group>
+          )}
           
-          return (
-            <Station
-              key={station.repo.id}
-              data={station}
-              onClick={onStationClick}
-              isActive={activeStation?.repo.id === station.repo.id}
-              rotation={[0, angle, 0]}
-            />
-          );
-        })}
+          <ParkAndCity stations={stations} season={season} timeOfDay={timeOfDay} />
+          <MetroTrack stations={stations} />
 
-        <Train activeStation={activeStation} stations={stations} />
+          {stations.map(station => {
+            // Safety check for positions
+            if (!station.trackPosition || !station.position) return null;
+
+            // Calculate rotation to face the track
+            const dx = station.trackPosition[0] - station.position[0];
+            const dz = station.trackPosition[2] - station.position[2];
+            const angle = Math.atan2(dx, dz) + Math.PI;
+            
+            return (
+              <Station
+                key={station.repo.id}
+                data={station}
+                onClick={onStationClick}
+                isActive={activeStation?.repo.id === station.repo.id}
+                rotation={[0, isNaN(angle) ? 0 : angle, 0]}
+              />
+            );
+          })}
+
+          <Train activeStation={activeStation} stations={stations} />
+        </React.Suspense>
 
         <OrbitControls
           enableDamping
           dampingFactor={0.08}
-          maxDistance={150}
+          maxDistance={300}
           minDistance={3}
           maxPolarAngle={Math.PI / 1.8}
           enablePan={true}
           makeDefault
+          target={[0, 0, 0]}
         />
       </Canvas>
     </div>

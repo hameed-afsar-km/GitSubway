@@ -80,11 +80,11 @@ export function Subway() {
   }, [stations, searchQuery, selectedYear]);
 
   useEffect(() => {
-    // If the currently selected station is filtered out, deselect it
-    if (activeStationId !== null) {
-      const stillExists = filteredStations.find(s => s.repo.id === activeStationId);
+    // If we have stations but none is active, or the current one is filtered out, select the first one
+    if (filteredStations.length > 0) {
+      const stillExists = activeStationId !== null ? filteredStations.find(s => s.repo.id === activeStationId) : null;
       if (!stillExists) {
-        setActiveStationId(null);
+        setActiveStationId(filteredStations[0].repo.id);
       }
     }
   }, [filteredStations, activeStationId]);

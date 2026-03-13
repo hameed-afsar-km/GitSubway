@@ -97,53 +97,16 @@ export function Station({ data, onClick, isActive, rotation = [0, 0, 0] }: Stati
         </group>
       ))}
 
-      {/* ── Station Title HUD (Neon-Line Style) ── */}
-      <Billboard position={[0, height + 2.8, 0]}>
-        {/* Futuristic HUD Frame */}
-        <group scale={1.2}>
-          {/* Central Plate */}
-          <mesh position={[0, 0, -0.1]}>
-            <planeGeometry args={[5, 1.4]} />
-            <meshBasicMaterial color="#0a0a1a" transparent opacity={0.85} />
-          </mesh>
-
-          {/* Top Notch Accent */}
-          <mesh position={[0, 0.7, 0]}>
-            <boxGeometry args={[1.5, 0.1, 0.05]} />
-            <meshBasicMaterial color={col} />
-          </mesh>
-          
-          {/* Border Glow */}
-          {[[-2.5, 0], [2.5, 0]].map((p, i) => (
-            <mesh key={i} position={[p[0], 0, 0]}>
-              <boxGeometry args={[0.05, 1.4, 0.05]} />
-              <meshBasicMaterial color={col} transparent opacity={0.6} />
-            </mesh>
-          ))}
-
-          <Text
-            fontSize={0.55}
-            color="#ffffff"
-            fontWeight="900"
-            anchorX="center"
-            anchorY="middle"
-            font="https://fonts.gstatic.com/s/rajdhani/v15/L0x5DF02iFML4hGCyOCzSRVr.woff"
-          >
-            {data.repo.name.toUpperCase()}
-          </Text>
-          <Text
-            position={[0, -0.45, 0]}
-            fontSize={0.2}
-            color={col}
-            fontWeight="bold"
-            anchorX="center"
-            anchorY="middle"
-            letterSpacing={0.2}
-          >
-            {`${data.repo.language || 'DATA'} MODULE`}
-          </Text>
-        </group>
-      </Billboard>
+      {/* ── Simple Label ── */}
+      <Text
+        position={[0, height + 1.5, 0]}
+        fontSize={0.8}
+        color="#ffffff"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {data.repo.name}
+      </Text>
 
       {/* ── Energy Field ── */}
       {active && (
