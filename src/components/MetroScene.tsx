@@ -388,6 +388,7 @@ export function MetroScene({ stations, activeStation, onStationClick, timeOfDay,
         <color attach="background" args={[bgColor]} />
         <fog attach="fog" args={[fogColor, 300, 2000]} />
         
+<<<<<<< HEAD
         <React.Suspense fallback={null}>
           {!isNight && (
             <group>
@@ -400,6 +401,27 @@ export function MetroScene({ stations, activeStation, onStationClick, timeOfDay,
           
           <ParkAndCity stations={stations} season={season} timeOfDay={timeOfDay} />
           <MetroTrack stations={stations} />
+=======
+        <ParkAndCity stations={stations} season={season} timeOfDay={timeOfDay} />
+        <MetroTrack stations={stations} />
+
+        {stations.map(station => {
+          // Calculate rotation to face the track
+          const dx = station.trackPosition[0] - station.position[0];
+          const dz = station.trackPosition[2] - station.position[2];
+          const angle = Math.atan2(dx, dz) + Math.PI;
+          
+          return (
+            <Station
+              key={station.repo.id}
+              data={station}
+              onClick={onStationClick}
+              isActive={activeStation?.repo.id === station.repo.id}
+              rotation={[0, angle, 0]}
+            />
+          );
+        })}
+>>>>>>> eec7ac65f0e33a3ec531941b3e80e1c5c9d7b221
 
           {stations.map(station => {
             if (!station.trackPosition || !station.position) return null;
