@@ -379,49 +379,30 @@ export function MetroScene({ stations, activeStation, onStationClick, timeOfDay,
   const fogColor = isNight ? '#000000' : season === 'winter' ? '#cbd5e1' : season === 'autumn' ? '#ffedd5' : '#87d0ff';
 
   return (
-    <div className="w-full h-full relative" style={{ background: bgColor, width: '100%', height: '100vw', minHeight: '100vh' }}>
+    <div className="w-full h-full relative" style={{ background: bgColor }}>
       <Canvas
         camera={{ position: [0, 20, 35], fov: 50, near: 0.1, far: 2000 }}
         gl={{ antialias: true }}
         dpr={[1, 2]}
       >
         <color attach="background" args={[bgColor]} />
+        <fog attach="fog" args={[fogColor, 300, 2000]} />
         
-        {/* Lights and Ground outside Suspense for debug */}
-        {isNight ? <NightLighting /> : <DayLighting />}
-        
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
-          <planeGeometry args={[10000, 10000]} />
-          <meshStandardMaterial color={getGroundColor(season, timeOfDay)} roughness={1} />
-        </mesh>
-
-        {/* Debug sphere at origin */}
-        <mesh position={[0, 5, 0]}>
-          <sphereGeometry args={[1]} />
-          <meshStandardMaterial color="red" />
-        </mesh>
-
-        <React.Suspense fallback={
-          <mesh position={[0, 10, 0]}>
-            <boxGeometry args={[2, 2, 2]} />
-            <meshStandardMaterial color="yellow" />
-          </mesh>
-        }>
+        <React.Suspense fallback={null}>
           {!isNight && (
             <group>
               <Cloud position={[-50, 45, -120]} speed={0.2} opacity={0.4} segments={10} />
               <Cloud position={[60, 50, -150]} speed={0.15} opacity={0.3} segments={12} />
             </group>
           )}
+
+          {isNight ? <NightLighting /> : <DayLighting />}
           
           <ParkAndCity stations={stations} season={season} timeOfDay={timeOfDay} />
           <MetroTrack stations={stations} />
 
           {stations.map(station => {
-            // Safety check for positions
             if (!station.trackPosition || !station.position) return null;
-
-            // Calculate rotation to face the track
             const dx = station.trackPosition[0] - station.position[0];
             const dz = station.trackPosition[2] - station.position[2];
             const angle = Math.atan2(dx, dz) + Math.PI;

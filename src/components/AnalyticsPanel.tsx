@@ -303,30 +303,33 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
                 }}
                 style={{
                   flexShrink: 0,
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  border: '1px solid rgba(239,68,68,0.4)',
-                  background: 'rgba(239,68,68,0.12)',
+                  width: 40,
+                  height: 40,
+                  borderRadius: '12px',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  background: 'rgba(239, 68, 68, 0.1)',
                   color: '#ef4444',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.2s',
-                  fontSize: '18px',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  zIndex: 60,
+                  pointerEvents: 'auto',
                 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.3)';
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.7)';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.12)';
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.4)';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
-                title="Close panel"
+                title="Close Analysis"
               >
-                ✕
+                <X size={20} strokeWidth={2.5} />
               </button>
             </div>
           </div>

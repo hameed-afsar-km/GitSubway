@@ -14,7 +14,7 @@ interface StationProps {
 export function Station({ data, onClick, isActive, rotation = [0, 0, 0] }: StationProps) {
   const groupRef = useRef<THREE.Group>(null);
 
-  const s = data.size;           
+  const s = data.size;
   const active = isActive;
 
   // Outpost scales
@@ -42,12 +42,12 @@ export function Station({ data, onClick, isActive, rotation = [0, 0, 0] }: Stati
           <boxGeometry args={[baseSize * 0.9, height, 0.1]} />
           <meshStandardMaterial color="#f8fafc" roughness={active ? 0 : 0.2} metalness={active ? 0.8 : 0.5} />
         </mesh>
-        
+
         {/* Side Folds (Angled) */}
         {[[-1, 1], [1, 1]].map(([x, side], i) => (
-          <mesh 
-            key={i} 
-            position={[x * (baseSize / 2 - 0.5), height / 2, 0]} 
+          <mesh
+            key={i}
+            position={[x * (baseSize / 2 - 0.5), height / 2, 0]}
             rotation={[0, side * 0.4, -x * 0.1]}
           >
             <boxGeometry args={[0.1, height * 0.8, baseSize * 0.7]} />
@@ -66,12 +66,12 @@ export function Station({ data, onClick, isActive, rotation = [0, 0, 0] }: Stati
       <group position={[0, height / 2, 0]}>
         <mesh>
           <octahedronGeometry args={[0.8]} />
-          <meshStandardMaterial 
-            color={col} 
-            emissive={col} 
-            emissiveIntensity={active ? 15 : 2} 
-            transparent 
-            opacity={0.9} 
+          <meshStandardMaterial
+            color={col}
+            emissive={col}
+            emissiveIntensity={active ? 15 : 2}
+            transparent
+            opacity={0.9}
           />
         </mesh>
         {/* Moving Orbit Shards */}
@@ -97,16 +97,48 @@ export function Station({ data, onClick, isActive, rotation = [0, 0, 0] }: Stati
         </group>
       ))}
 
-      {/* ── Simple Label ── */}
-      <Text
-        position={[0, height + 1.5, 0]}
-        fontSize={0.8}
-        color="#ffffff"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {data.repo.name}
-      </Text>
+      {/* ── Station Title HUD (Neon-Line Style) ── */}
+      <Billboard position={[0, height + 2.8, 0]}>
+        <group scale={1.2}>
+          <mesh position={[0, 0, -0.1]}>
+            <planeGeometry args={[5, 1.4]} />
+            <meshBasicMaterial color="#0a0a1a" transparent opacity={0.85} />
+          </mesh>
+
+          <mesh position={[0, 0.7, 0]}>
+            <boxGeometry args={[1.5, 0.1, 0.05]} />
+            <meshBasicMaterial color={col} />
+          </mesh>
+
+          {[[-2.5, 0], [2.5, 0]].map((p, i) => (
+            <mesh key={i} position={[p[0], 0, 0]}>
+              <boxGeometry args={[0.05, 1.4, 0.05]} />
+              <meshBasicMaterial color={col} transparent opacity={0.6} />
+            </mesh>
+          ))}
+
+          <Text
+            fontSize={0.55}
+            color="#ffffff"
+            fontWeight="900"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {data.repo.name.toUpperCase()}
+          </Text>
+          <Text
+            position={[0, -0.45, 0]}
+            fontSize={0.2}
+            color={col}
+            fontWeight="bold"
+            anchorX="center"
+            anchorY="middle"
+            letterSpacing={0.2}
+          >
+            {`${data.repo.language || 'DATA'} MODULE`}
+          </Text>
+        </group>
+      </Billboard>
 
       {/* ── Energy Field ── */}
       {active && (
