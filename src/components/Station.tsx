@@ -97,47 +97,34 @@ export function Station({ data, onClick, isActive, rotation = [0, 0, 0] }: Stati
         </group>
       ))}
 
-      {/* ── Station Title HUD (Neon-Line Style) ── */}
-      <Billboard position={[0, height + 2.8, 0]}>
-        <group scale={1.2}>
-          <mesh position={[0, 0, -0.1]}>
-            <planeGeometry args={[5, 1.4]} />
-            <meshBasicMaterial color="#0a0a1a" transparent opacity={0.85} />
-          </mesh>
+      {/* ── Station Title HUD (Billboard for maximum visibility) ── */}
+      <Billboard position={[0, height + 2.2, 0]}>
+        {/* High-visibility background plate */}
+        <mesh position={[0, 0, -0.1]}>
+          <planeGeometry args={[Math.max(4, baseSize * 0.7), 1.2]} />
+          <meshBasicMaterial color="#000000" transparent opacity={0.7} />
+        </mesh>
 
-          <mesh position={[0, 0.7, 0]}>
-            <boxGeometry args={[1.5, 0.1, 0.05]} />
-            <meshBasicMaterial color={col} />
-          </mesh>
-
-          {[[-2.5, 0], [2.5, 0]].map((p, i) => (
-            <mesh key={i} position={[p[0], 0, 0]}>
-              <boxGeometry args={[0.05, 1.4, 0.05]} />
-              <meshBasicMaterial color={col} transparent opacity={0.6} />
-            </mesh>
-          ))}
-
-          <Text
-            fontSize={0.55}
-            color="#ffffff"
-            fontWeight="900"
-            anchorX="center"
-            anchorY="middle"
-          >
-            {data.repo.name.toUpperCase()}
-          </Text>
-          <Text
-            position={[0, -0.45, 0]}
-            fontSize={0.2}
-            color={col}
-            fontWeight="bold"
-            anchorX="center"
-            anchorY="middle"
-            letterSpacing={0.2}
-          >
-            {`${data.repo.language || 'DATA'} MODULE`}
-          </Text>
-        </group>
+        <Text
+          fontSize={0.65}
+          color="#ffffff"
+          fontWeight="900"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {data.repo.name.toUpperCase()}
+        </Text>
+        <Text
+          position={[0, -0.4, 0]}
+          fontSize={0.22}
+          color={col}
+          fontWeight="bold"
+          anchorX="center"
+          anchorY="middle"
+          letterSpacing={0.15}
+        >
+          {`${data.repo.language || 'PROJECT'} OUTPOST`}
+        </Text>
       </Billboard>
 
       {/* ── Energy Field ── */}
