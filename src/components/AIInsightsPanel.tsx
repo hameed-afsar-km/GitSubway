@@ -224,203 +224,212 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop (Neural Fog) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             style={{
-              position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)',
-              backdropFilter: 'blur(4px)', zIndex: 500,
+              position: 'fixed', inset: 0, background: 'rgba(2, 6, 23, 0.8)',
+              backdropFilter: 'blur(8px)', zIndex: 500,
             }}
           />
 
-          {/* Panel */}
-          <motion.div
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            style={{
-              position: 'absolute', bottom: 0, left: 0,
-              width: '100%', maxHeight: '85vh',
-              overflowY: 'auto', zIndex: 510,
-              background: 'linear-gradient(160deg, rgba(6,8,24,0.98) 0%, rgba(4,6,16,0.99) 100%)',
-              borderTop: '1px solid rgba(59,130,246,0.2)',
-              borderRight: 'none',
-              boxShadow: '0 -20px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(59,130,246,0.05)',
-            }}
-          >
-            {/* Header */}
-            <div style={{
-              position: 'sticky', top: 0, zIndex: 10,
-              background: 'rgba(6,8,24,0.97)',
-              backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(59,130,246,0.12)',
-            padding: '16px 24px 12px',
+          {/* Panel Container (Centered Wrapper) */}
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 510,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px', pointerEvents: 'none'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  padding: 8, background: 'rgba(59,130,246,0.12)',
-                  borderRadius: 10, display: 'flex', border: '1px solid rgba(59,130,246,0.2)',
-                }}>
-                  <Sparkles size={18} color="#3b82f6" />
-                </div>
-                  <div>
-                    <h2 style={{ color: '#f0f6ff', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
-                      AI Developer Analysis
-                    </h2>
-                    <p style={{ color: '#475569', fontSize: '0.72rem', margin: 0 }}>
-                      Powered by Google Gemini · {user?.login}
-                    </p>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              style={{
+                width: '100%', maxWidth: 1000, maxHeight: '90vh',
+                background: 'linear-gradient(165deg, rgba(8, 12, 32, 0.95) 0%, rgba(4, 6, 16, 0.98) 100%)',
+                backdropFilter: 'blur(40px)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: 32, overflow: 'hidden',
+                boxShadow: '0 24px 64px rgba(0,0,0,0.8), inset 0 0 40px rgba(59,130,246,0.05)',
+                display: 'flex', flexDirection: 'column',
+                pointerEvents: 'auto'
+              }}
+            >
+              {/* Header */}
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.4)',
+                borderBottom: '1px solid rgba(59, 130, 246, 0.15)',
+                padding: '24px 32px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div className="gradient-button" style={{
+                      width: 52, height: 52, borderRadius: 16,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#3b82f6', border: 'none'
+                    }}>
+                      <Brain size={28} />
+                    </div>
+                    <div>
+                      <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em' }}>
+                        NEURAL ANALYSIS
+                      </h2>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Sparkles size={12} color="#3b82f6" />
+                        <span style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                          Quantum Core v2.0 · {user?.login}
+                        </span>
+                      </div>
+                    </div>
                   </div>
+
+                  <button
+                    onClick={onClose}
+                    style={{
+                      width: 44, height: 44, borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#94a3b8', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = '#ef4444'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                  >
+                    <X size={22} />
+                  </button>
                 </div>
 
-                {/* Close Button */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); onClose(); }}
-                  style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    border: '1px solid rgba(239,68,68,0.4)',
-                    background: 'rgba(239,68,68,0.12)',
-                    color: '#ef4444', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '16px', transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.3)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.12)';
-                  }}
-                >
-                  ✕
-                </button>
+                {/* Cyber Stats Grid */}
+                <div style={{ 
+                  display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14 
+                }}>
+                  {[
+                    { label: 'Network Units', value: repos.length, color: '#3b82f6' },
+                    { label: 'Stellar Stars', value: totalStars.toLocaleString(), color: '#f59e0b' },
+                    { label: 'Syntaxes', value: langCount, color: '#10b981' },
+                    { label: 'Active Reach', value: user?.followers.toLocaleString() || '0', color: '#8b5cf6' },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} style={{
+                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
+                      borderRadius: 20, padding: '14px 18px', position: 'relative'
+                    }}>
+                      <div style={{ position: 'absolute', top: 0, left: 12, right: 12, height: 2, background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
+                      <div style={{ color: '#fff', fontWeight: 900, fontSize: '1.25rem', marginBottom: 2 }}>{value}</div>
+                      <div style={{ color: '#475569', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Quick stats */}
-              <div style={{ display: 'flex', gap: 16 }}>
-                {[
-                  { label: 'Repos', value: repos.length, icon: '📁' },
-                  { label: 'Total Stars', value: totalStars.toLocaleString(), icon: '⭐' },
-                  { label: 'Total Forks', value: totalForks.toLocaleString(), icon: '🍴' },
-                  { label: 'Languages', value: langCount, icon: '💻' },
-                  { label: 'Followers', value: user?.followers.toLocaleString() || '0', icon: '👥' },
-                ].map(({ label, value, icon }) => (
-                  <div key={label} style={{ textAlign: 'center' }}>
-                    <div style={{ color: '#3b82f6', fontWeight: 700, fontSize: '0.9rem' }}>{icon} {value}</div>
-                    <div style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
-                  </div>
+              {/* Navigation Tabs */}
+              <div style={{
+                display: 'flex', gap: 8, padding: '0 32px',
+                background: 'rgba(6, 8, 24, 0.3)', borderBottom: '1px solid rgba(255,255,255,0.05)'
+              }}>
+                {AI_TABS.map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      padding: '18px 20px', border: 'none', background: 'transparent',
+                      cursor: 'pointer', fontSize: '0.85rem', fontWeight: 800,
+                      color: activeTab === tab ? '#3b82f6' : '#475569',
+                      position: 'relative', transition: 'all 0.3s'
+                    }}
+                  >
+                    <span style={{ letterSpacing: '0.04em' }}>{tab.toUpperCase()}</span>
+                    {activeTab === tab && (
+                      <motion.div
+                        layoutId="neuralTab"
+                        style={{
+                          position: 'absolute', bottom: 0, left: 0, right: 0,
+                          height: 3, background: '#3b82f6',
+                          boxShadow: '0 0 15px rgba(59,130,246,0.6)'
+                        }}
+                      />
+                    )}
+                  </button>
                 ))}
               </div>
-            </div>
 
-            {/* Tabs */}
-            <div style={{
-              display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)',
-              padding: '0 20px', background: 'rgba(255,255,255,0.01)',
-            }}>
-              {AI_TABS.map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    padding: '10px 18px', border: 'none', background: 'transparent',
-                    cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-                    color: activeTab === tab ? '#3b82f6' : '#64748b',
-                    borderBottom: activeTab === tab ? '2px solid #3b82f6' : '2px solid transparent',
-                    transition: 'all 0.2s', marginBottom: -1,
-                  }}
-                >
-                  {tab === 'AI Analysis' && <><Brain size={12} style={{ display: 'inline', marginRight: 5 }} />{tab}</>}
-                  {tab === 'Language Stats' && <><Code2 size={12} style={{ display: 'inline', marginRight: 5 }} />{tab}</>}
-                  {tab === 'Activity' && <><TrendingUp size={12} style={{ display: 'inline', marginRight: 5 }} />{tab}</>}
-                </button>
-              ))}
-            </div>
-
-            {/* Content */}
-            <div style={{ padding: '20px 24px 32px' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {/* AI Analysis Tab */}
-                  {activeTab === 'AI Analysis' && (
-                    <div style={{ maxWidth: 900, margin: '0 auto' }}>
-                      {loading ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 0', gap: 14 }}>
-                          <div style={{
-                            position: 'relative', width: 56, height: 56,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            <div style={{
-                              position: 'absolute', inset: 0, borderRadius: '50%',
-                              border: '2px solid rgba(59,130,246,0.3)',
+              {/* Scrollable Content */}
+              <div style={{ 
+                flex: 1, overflowY: 'auto', padding: '32px',
+                scrollbarWidth: 'thin', scrollbarColor: 'rgba(59,130,246,0.3) transparent'
+              }}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {activeTab === 'AI Analysis' && (
+                      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+                        {loading ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 0', gap: 20 }}>
+                            <div className="neural-spinner" style={{
+                              width: 64, height: 64, borderRadius: '50%',
+                              border: '3px solid rgba(59,130,246,0.1)',
                               borderTopColor: '#3b82f6',
-                              animation: 'spin 1s linear infinite',
+                              animation: 'neural-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite',
                             }} />
-                            <Sparkles size={20} color="#3b82f6" />
+                            <p style={{ color: '#475569', fontSize: '0.95rem', fontWeight: 600, letterSpacing: '0.02em' }}>
+                              DECODING DEVELOPER SIGNAL...
+                            </p>
+                            <style>{`@keyframes neural-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                           </div>
-                          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>
-                            Gemini is analyzing your developer profile…
-                          </p>
-                          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                        </div>
-                      ) : (
-                        <div className="markdown-body">
-                          <Markdown>{insights || 'No insights available.'}</Markdown>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        ) : (
+                          <div className="markdown-body">
+                            <Markdown>{insights || 'Neural log empty.'}</Markdown>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
-                  {/* Language Stats Tab */}
-                  {activeTab === 'Language Stats' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                    {activeTab === 'Language Stats' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+                        <div style={{
+                          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                          borderRadius: 24, padding: '24px',
+                        }}>
+                          <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
+                            Syntax Frequency
+                          </div>
+                          {langPieData && <Pie data={langPieData} options={pieOptions} />}
+                        </div>
+                        <div style={{
+                          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                          borderRadius: 24, padding: '24px',
+                        }}>
+                          <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
+                            Velocity Metrics
+                          </div>
+                          {topReposData && <Bar data={topReposData} options={barOptions} />}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'Activity' && (
                       <div style={{
                         background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                        borderRadius: 12, padding: '16px 14px',
+                        borderRadius: 24, padding: '24px',
                       }}>
-                        <div style={{ color: '#64748b', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
-                          🍕 Language Distribution
+                        <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 20 }}>
+                          Temporal Impact Graph
                         </div>
-                        {langPieData && <Pie data={langPieData} options={pieOptions} />}
+                        {activityData && <Line data={activityData} options={activityOptions} />}
                       </div>
-                      <div style={{
-                        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                        borderRadius: 12, padding: '16px 14px',
-                      }}>
-                        <div style={{ color: '#64748b', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
-                          📊 Top Stars by Repo
-                        </div>
-                        {topReposData && <Bar data={topReposData} options={barOptions} />}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Activity Tab */}
-                  {activeTab === 'Activity' && (
-                    <div style={{
-                      background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                      borderRadius: 12, padding: '16px 14px',
-                    }}>
-                      <div style={{ color: '#64748b', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
-                        📈 Yearly Contribution Activity
-                      </div>
-                      {activityData && <Line data={activityData} options={activityOptions} />}
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </motion.div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
