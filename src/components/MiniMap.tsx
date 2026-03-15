@@ -33,15 +33,15 @@ export function MiniMap({ stations, activeStation, onStationClick }: MiniMapProp
       className="hidden md:block"
       style={{
         position: 'absolute',
-        bottom: 24,
-        right: 24,
-        zIndex: 10,
-        background: 'rgba(6,8,24,0.9)',
+        top: 20,
+        right: 20,
+        zIndex: 50,
+        background: 'rgba(8, 12, 32, 0.85)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(59,130,246,0.15)',
-        borderRadius: 16,
+        border: '1px solid rgba(59, 130, 246, 0.2)',
+        borderRadius: 20,
         padding: '12px 14px',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,130,246,0.04)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
       }}
     >
       <div style={{

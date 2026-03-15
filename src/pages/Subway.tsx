@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User, Sun, Moon, Leaf, Snowflake, Flower, Mountain, Infinity as InfinityIcon, Rocket, Brain, Shield } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, ChevronLeft, ChevronRight, Search, Share2, Filter, MapPin, Train, User, Sun, Moon, Leaf, Snowflake, Flower, Mountain, Infinity as InfinityIcon, Rocket, Brain, Shield, ChevronDown, Swords } from 'lucide-react';
 import { MetroScene } from '../components/MetroScene';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
 import { AIInsightsPanel } from '../components/AIInsightsPanel';
@@ -24,6 +24,7 @@ export function Subway() {
   const [stations, setStations] = useState<MetroStationData[]>([]);
 
   const [activeStationId, setActiveStationId] = useState<number | null>(null);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [showAIInsights, setShowAIInsights] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('All');
@@ -111,6 +112,7 @@ export function Subway() {
 
   const handleStationClick = (station: MetroStationData) => {
     setActiveStationId(station.repo.id);
+    setIsPanelCollapsed(false);
   };
 
   const availableYears = useMemo(() => {
@@ -307,24 +309,20 @@ export function Subway() {
         />
       </div>
 
-      {/* ─── Environmental Dock (Left) ─── */}
+      {/* ─── Environmental Control Module (Right) ─── */}
       <div style={{
-        position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
-        zIndex: 20, display: 'flex', flexDirection: 'column', gap: 12,
-        background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(20px)',
+        position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)',
+        zIndex: 100, display: 'flex', flexDirection: 'column', gap: 12,
+        background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255,255,255,0.1)',
         borderRadius: 24, padding: '12px 6px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
       }}>
-        {/* Time of Day Section */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <TimeButton type="day" icon={Sun} label="Day" />
           <TimeButton type="night" icon={Moon} label="Night" />
         </div>
-
         <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 6px' }} />
-
-        {/* Seasons Section */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <SeasonButton type="summer" icon={Mountain} label="Summer" />
           <SeasonButton type="autumn" icon={Leaf} label="Autumn" />
@@ -334,223 +332,215 @@ export function Subway() {
         </div>
       </div>
 
-      {/* ─── Top Nav ─── */}
+      {/* ─── Top Identity Hub ─── */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, width: '100%',
-        padding: '16px 20px',
-        zIndex: 10,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: 10,
-        background: 'linear-gradient(180deg, rgba(4,4,16,0.85) 0%, transparent 100%)',
-        pointerEvents: 'none',
+        position: 'absolute', top: 20, left: 20,
+        zIndex: 100, display: 'flex', alignItems: 'center', gap: 12,
+        pointerEvents: 'none'
       }}>
+        <button
+          onClick={() => navigate('/')}
+          className="gradient-button"
+          style={{
+            width: 44, height: 44, borderRadius: '50%',
+            color: '#3b82f6', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'auto', border: 'none'
+          }}
+        >
+          <ArrowLeft size={20} />
+        </button>
 
-        {/* Left: back + user info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
-          <button
-            onClick={() => navigate('/')}
-            style={{
-              width: 40, height: 40, borderRadius: '50%',
-              background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(59,130,246,0.2)',
-              color: '#3b82f6', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-          >
-            <ArrowLeft size={18} />
-          </button>
-
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(59,130,246,0.15)',
-            borderRadius: 12, padding: '8px 16px 8px 10px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-          }}>
-            <img src={user.avatar_url} alt={user.login} style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid rgba(59,130,246,0.3)' }} />
-            <div>
-              <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.2 }}>
-                {user.name || user.login}
-              </div>
-              <div style={{ color: '#475569', fontSize: '0.7rem' }}>
-                <span style={{ color: '#3b82f6' }}>{stations.length}</span> stations on the line
-              </div>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          background: 'rgba(8, 12, 32, 0.8)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(59, 130, 246, 0.2)',
+          borderRadius: 22, padding: '4px 20px 4px 6px',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 20px rgba(59,130,246,0.1)',
+          pointerEvents: 'auto'
+        }}>
+          <div style={{ position: 'relative' }}>
+            <img 
+              src={user.avatar_url} 
+              alt={user.login} 
+              style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #3b82f6' }} 
+            />
+            <div style={{ 
+              position: 'absolute', bottom: -2, right: -2, 
+              width: 10, height: 10, borderRadius: '50%', 
+              background: '#22c55e', border: '2px solid #080c20' 
+            }} />
+          </div>
+          <div>
+            <div style={{ color: '#f0f6ff', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '0.02em' }}>
+              {user.login.toUpperCase()}
+            </div>
+            <div style={{ color: '#64748b', fontSize: '0.6rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Line Manifest · {stations.length} Units
             </div>
           </div>
         </div>
-
-        {/* Right: controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto', flexWrap: 'wrap' }}>
-
-          {/* Year filter */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 100, padding: '7px 14px',
-          }}>
-            <Filter size={13} color="#475569" />
-            <select
-              value={selectedYear}
-              onChange={e => setSelectedYear(e.target.value)}
-              style={{
-                background: 'transparent', border: 'none',
-                color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
-                cursor: 'pointer', fontFamily: 'Inter, sans-serif',
-              }}
-            >
-              {availableYears.map(year => (
-                <option key={year} value={year} style={{ background: '#0d0d20' }}>
-                  {year === 'All' ? 'All Years' : year}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Search Repos */}
-          <div style={{ position: 'relative' }}>
-            <Search size={13} color="#475569" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              type="text"
-              placeholder="Search repos…"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              style={{
-                background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 100, padding: '8px 14px 8px 32px',
-                color: '#e2e8f0', fontSize: '0.8rem', outline: 'none',
-                width: 140, fontFamily: 'Inter, sans-serif',
-                transition: 'all 0.2s',
-              }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(59,130,246,0.3)'; e.target.style.width = '180px'; }}
-              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.width = '140px'; }}
-            />
-          </div>
-
-          <button
-            onClick={() => setShowAIInsights(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px',
-              background: 'rgba(59,130,246,0.1)', backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(59,130,246,0.3)',
-              borderRadius: 100, color: '#3b82f6',
-              cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem',
-              boxShadow: '0 0 16px rgba(59,130,246,0.08)',
-              transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
-            }}
-          >
-            <Sparkles size={14} />
-            <span>AI Insights</span>
-          </button>
-
-          {/* Battle button */}
-          <button
-            onClick={() => setIsBattleMode(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px',
-              background: 'rgba(239, 68, 68, 0.1)', backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: 100, color: '#ef4444',
-              cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem',
-              boxShadow: '0 0 16px rgba(239, 68, 68, 0.08)',
-              transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
-            }}
-          >
-            <Train size={14} style={{ transform: 'rotate(90deg)' }} />
-            <span>Subway Battle</span>
-          </button>
-
-          {/* Share */}
-          <button
-            onClick={handleShare}
-            style={{
-              width: 38, height: 38, borderRadius: '50%',
-              background: 'rgba(6,8,24,0.85)', backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: '#94a3b8', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-            title="Share"
-          >
-            <Share2 size={16} />
-          </button>
-        </div>
       </div>
 
-      {/* ─── Bottom Timeline Controls ─── */}
+      {/* Right side environmental control orb moved to Subway Design HUD block below */}
+
+      {/* ─── Unified Console Hub (Bottom) ─── */}
       <div style={{
-        position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-        zIndex: 10,
+        position: 'absolute', bottom: 30, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 100, width: 'calc(100% - 40px)', maxWidth: 880,
+        display: 'flex', alignItems: 'flex-end', gap: 12,
+        pointerEvents: 'none'
       }}>
+        
+        {/* Left Module: Search & Filters (Visible on desktop/larger screens) */}
+        <div className="hidden sm:flex" style={{
+          background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 24, padding: 12, gap: 8,
+          pointerEvents: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+        }}>
+          <div style={{ position: 'relative' }}>
+             <Search size={14} color="#3b82f6" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+             <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: 16, padding: '10px 12px 10px 34px',
+                  color: '#fff', fontSize: '0.75rem', outline: 'none', width: 100,
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onFocus={e => e.target.style.width = '140px'}
+                onBlur={e => e.target.style.width = '100px'}
+             />
+          </div>
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            style={{
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)',
+              borderRadius: 16, padding: '0 12px', color: '#94a3b8', fontSize: '0.75rem',
+              outline: 'none', cursor: 'pointer'
+            }}
+          >
+            {availableYears.map(year => (
+              <option key={year} value={year} style={{ background: '#0d0d20' }}>
+                {year === 'All' ? 'All' : year}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Center Module: Navigation Timeline */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
           style={{
-            background: 'rgba(6,8,24,0.92)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(59,130,246,0.15)',
-            borderRadius: 100,
-            padding: '6px 8px',
+            flex: 1, height: 72,
+            background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(32px)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: 36, padding: '0 8px',
             display: 'flex', alignItems: 'center', gap: 4,
-            boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,130,246,0.05)',
+            pointerEvents: 'auto', 
+            boxShadow: '0 12px 48px rgba(0,0,0,0.6), inset 0 0 20px rgba(59,130,246,0.1)'
           }}
         >
           <button
             onClick={handlePrevStation}
             disabled={activeStationIndex === null || activeStationIndex === 0}
             style={{
-              width: 40, height: 40, borderRadius: '50%',
-              border: 'none', background: 'transparent',
-              color: activeStationIndex === 0 ? '#2d3748' : '#94a3b8',
+              width: 56, height: 56, borderRadius: '50%',
+              border: 'none', background: 'rgba(59,130,246,0.05)',
+              color: activeStationIndex === 0 ? '#1e293b' : '#3b82f6',
               cursor: activeStationIndex === 0 ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
+              transition: 'all 0.2s'
             }}
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={24} />
           </button>
 
-          <div style={{ paddingInline: 16, textAlign: 'center', minWidth: 200 }}>
+          <div style={{ flex: 1, textAlign: 'center', minWidth: 0, paddingInline: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 2 }}>
-              <MapPin size={10} color="#3b82f6" />
-              <span style={{ color: '#475569', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Station {activeStationIndex !== null ? activeStationIndex + 1 : '–'} / {filteredStations.length}
+              <div style={{ 
+                width: 8, height: 8, borderRadius: '50%', 
+                background: activeStation?.color || '#3b82f6',
+                boxShadow: `0 0 10px ${activeStation?.color || '#3b82f6'}`
+              }} />
+              <span style={{ color: '#475569', fontSize: '0.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                {activeStationIndex !== null ? `Station ${activeStationIndex + 1}` : 'Waiting...'}
               </span>
             </div>
-            <div style={{ color: '#f0f6ff', fontWeight: 700, fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
-              {activeStation?.repo.name || 'Select a Station'}
+            <div style={{ 
+              color: '#fff', fontWeight: 900, fontSize: '1rem', 
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              letterSpacing: '-0.01em'
+            }}>
+              {activeStation?.repo.name.toUpperCase() || 'SELECT ORIGIN'}
             </div>
-            {activeStation && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: activeStation.color, boxShadow: `0 0 4px ${activeStation.color}` }} />
-                <span style={{ color: '#475569', fontSize: '0.65rem' }}>
-                  {activeStation.repo.language || 'Unknown'} · {new Date(activeStation.repo.created_at).getFullYear()}
-                </span>
-              </div>
-            )}
           </div>
 
           <button
             onClick={handleNextStation}
             disabled={activeStationIndex === null || activeStationIndex === filteredStations.length - 1}
             style={{
-              width: 40, height: 40, borderRadius: '50%',
-              border: 'none', background: 'transparent',
-              color: activeStationIndex === filteredStations.length - 1 ? '#2d3748' : '#94a3b8',
+              width: 56, height: 56, borderRadius: '50%',
+              border: 'none', background: 'rgba(59,130,246,0.05)',
+              color: activeStationIndex === filteredStations.length - 1 ? '#1e293b' : '#3b82f6',
               cursor: activeStationIndex === filteredStations.length - 1 ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
+              transition: 'all 0.2s'
             }}
           >
-            <ChevronRight size={22} />
+            <ChevronRight size={24} />
           </button>
         </motion.div>
+
+        {/* Right Module: Tactics & Logic */}
+        <div style={{
+          background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 24, padding: 12, display: 'flex', gap: 8,
+          pointerEvents: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+        }}>
+          <button
+            onClick={() => setShowAIInsights(true)}
+            className="gradient-button"
+            title="AI Analysis"
+            style={{
+              width: 44, height: 44, borderRadius: 16, border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#3b82f6'
+            }}
+          >
+            <Sparkles size={18} />
+          </button>
+          <button
+            onClick={() => setIsBattleMode(true)}
+            className="gradient-button"
+            title="Battle Mode"
+            style={{
+              width: 44, height: 44, borderRadius: 16, border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#ef4444'
+            }}
+          >
+            <Swords size={18} />
+          </button>
+          <button
+            onClick={handleShare}
+            style={{
+              width: 44, height: 44, borderRadius: 16, 
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#94a3b8', cursor: 'pointer'
+            }}
+          >
+            <Share2 size={16} />
+          </button>
+        </div>
       </div>
 
       {/* ─── Mini Map ─── */}
@@ -562,9 +552,62 @@ export function Subway() {
 
       {/* ─── Analytics Panel ─── */}
       <AnalyticsPanel
-        station={activeStation}
-        onClose={() => setActiveStationId(null)}
+        station={isPanelCollapsed ? null : activeStation}
+        onClose={() => setIsPanelCollapsed(true)}
       />
+
+      {/* ─── Re-open panel tab (shown when panel is collapsed but a station is selected) ─── */}
+      {isPanelCollapsed && activeStation && (
+        <button
+          onClick={() => setIsPanelCollapsed(false)}
+          title={`Re-open: ${activeStation.repo.name}`}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            right: 0,
+            transform: 'translateY(-50%)',
+            zIndex: 50,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            padding: '14px 8px',
+            background: 'linear-gradient(180deg, rgba(8,12,32,0.97) 0%, rgba(6,8,20,0.98) 100%)',
+            border: '1px solid rgba(59,130,246,0.2)',
+            borderRight: 'none',
+            borderRadius: '12px 0 0 12px',
+            color: '#3b82f6',
+            cursor: 'pointer',
+            boxShadow: '-4px 0 20px rgba(0,0,0,0.5)',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'linear-gradient(180deg, rgba(59,130,246,0.15) 0%, rgba(8,12,32,0.97) 100%)';
+            e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'linear-gradient(180deg, rgba(8,12,32,0.97) 0%, rgba(6,8,20,0.98) 100%)';
+            e.currentTarget.style.borderColor = 'rgba(59,130,246,0.2)';
+          }}
+        >
+          <ChevronDown size={16} style={{ transform: 'rotate(90deg)' }} />
+          <span style={{
+            fontSize: '0.6rem',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed',
+            color: '#3b82f6',
+            maxHeight: 80,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {activeStation.repo.name}
+          </span>
+        </button>
+      )}
 
       <AIInsightsPanel
         user={user}
