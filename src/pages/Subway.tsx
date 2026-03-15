@@ -309,21 +309,21 @@ export function Subway() {
         />
       </div>
 
-      {/* ─── Environmental Control Module (Right) ─── */}
-      <div style={{
-        position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)',
-        zIndex: 100, display: 'flex', flexDirection: 'column', gap: 12,
-        background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: 24, padding: '12px 6px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+      {/* ─── Environmental Control Module (Left-Center) ─── */}
+      <div className="hidden sm:flex" style={{
+        position: 'absolute', left: 24, top: '55%', transform: 'translateY(-50%)',
+        zIndex: 100, flexDirection: 'column', gap: 14,
+        background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(24px)',
+        border: '1px solid rgba(59, 130, 246, 0.2)',
+        borderRadius: 24, padding: '16px 8px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <TimeButton type="day" icon={Sun} label="Day" />
           <TimeButton type="night" icon={Moon} label="Night" />
         </div>
-        <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 6px' }} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ height: 1, background: 'rgba(59, 130, 246, 0.2)', margin: '6px 8px' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <SeasonButton type="summer" icon={Mountain} label="Summer" />
           <SeasonButton type="autumn" icon={Leaf} label="Autumn" />
           <SeasonButton type="winter" icon={Snowflake} label="Winter" />
@@ -334,29 +334,29 @@ export function Subway() {
 
       {/* ─── Top Identity Hub ─── */}
       <div style={{
-        position: 'absolute', top: 20, left: 20,
-        zIndex: 100, display: 'flex', alignItems: 'center', gap: 12,
+        position: 'absolute', top: 24, left: 24,
+        zIndex: 110, display: 'flex', alignItems: 'center', gap: 14,
         pointerEvents: 'none'
       }}>
         <button
           onClick={() => navigate('/')}
           className="gradient-button"
           style={{
-            width: 44, height: 44, borderRadius: '50%',
+            width: 48, height: 48, borderRadius: '50%',
             color: '#3b82f6', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             pointerEvents: 'auto', border: 'none'
           }}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={22} />
         </button>
 
         <div style={{
           display: 'flex', alignItems: 'center', gap: 12,
-          background: 'rgba(8, 12, 32, 0.8)', backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: 22, padding: '4px 20px 4px 6px',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 20px rgba(59,130,246,0.1)',
+          background: 'rgba(8, 12, 32, 0.85)', backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(59, 130, 246, 0.25)',
+          borderRadius: 24, padding: '6px 20px 6px 8px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(59,130,246,0.15)',
           pointerEvents: 'auto'
         }}>
           <div style={{ position: 'relative' }}>
