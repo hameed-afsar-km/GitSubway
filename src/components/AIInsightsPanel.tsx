@@ -232,7 +232,7 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
             onClick={onClose}
             style={{
               position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)',
-              backdropFilter: 'blur(4px)', zIndex: 45,
+              backdropFilter: 'blur(4px)', zIndex: 500,
             }}
           />
 
@@ -244,8 +244,8 @@ export function AIInsightsPanel({ user, repos, isOpen, onClose }: AIInsightsPane
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             style={{
               position: 'absolute', bottom: 0, left: 0,
-              width: '100%', maxHeight: '80vh',
-              overflowY: 'auto', zIndex: 50,
+              width: '100%', maxHeight: '85vh',
+              overflowY: 'auto', zIndex: 510,
               background: 'linear-gradient(160deg, rgba(6,8,24,0.98) 0%, rgba(4,6,16,0.99) 100%)',
               borderTop: '1px solid rgba(59,130,246,0.2)',
               borderRight: 'none',

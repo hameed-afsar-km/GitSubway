@@ -253,7 +253,7 @@ export function AnalyticsPanel({ station, onClose }: AnalyticsPanelProps) {
             width: '100%',
             maxWidth: '420px',
             overflowY: 'auto',
-            zIndex: 50,
+            zIndex: 150,
             background: 'linear-gradient(160deg, rgba(8,12,32,0.97) 0%, rgba(6,8,20,0.98) 100%)',
             borderLeft: '1px solid rgba(59,130,246,0.15)',
             boxShadow: '-20px 0 60px rgba(0,0,0,0.8), inset 1px 0 0 rgba(59,130,246,0.05)',
