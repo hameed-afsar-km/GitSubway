@@ -43,17 +43,22 @@ GitSubway/
 ## 🚀 Getting Started
 
 ### Installation
-1. Install dependencies:
+1. Clone the Repository:
+   ```bash
+   git clone https://github.com/hameed-afsar-km/GitSubway.git
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Add your Gemini API Key in `.env.local`:
+3. Add your Gemini API Key in `.env.local`:
    ```env
    VITE_GEMINI_API_KEY=your_api_key
    ```
 
-3. Start the engine:
+4. Start the engine:
    ```bash
    npm run dev
    ```
